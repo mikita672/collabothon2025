@@ -1,5 +1,5 @@
 # gemini_summarizer.py
-from services.gemini_summarizer.config import get_gemini_client
+from .config import get_gemini_client
 
 _client = get_gemini_client()
 
