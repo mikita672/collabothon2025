@@ -4,8 +4,9 @@ from pathlib import Path
 from google import genai
 from dotenv import load_dotenv
 
-# Попытка загрузить файл .env, если он существует рядом с этим модулем.
-load_dotenv(Path(__file__).parent / ".env")
+# Load .env from backend root (up two levels from this file)
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(env_path)
 
 
 def get_gemini_client() -> genai.Client:
