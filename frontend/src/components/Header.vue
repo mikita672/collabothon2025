@@ -2,20 +2,15 @@
   <v-app-bar
     :elevation="0"
     color="#002e3d"
-    height="70"
-    class="header-bar"
   >
-    <v-container class="d-flex align-center px-6" fluid style="max-width: 1600px;">
-      <!-- Logo & Brand -->
+    <v-container class="d-flex align-center" fluid style="max-width: 1600px;">
       <div class="d-flex align-center logo-section">
         <img src="../assets/logo.png" alt="Logo" class="header-logo" />
       </div>
 
       <v-spacer></v-spacer>
 
-      <!-- Navigation & User Section -->
       <div class="d-flex align-center nav-section">
-
         <!-- User Profile Menu -->
         <v-menu offset-y min-width="280" location="bottom end">
           <template v-slot:activator="{ props }">
@@ -86,13 +81,6 @@ const handlePortfolio = () => {
 </script>
 
 <style scoped>
-.header-bar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  background: #002e3d !important;
-}
-
-/* Logo Section */
 .logo-section {
   cursor: pointer;
   transition: transform 0.2s ease;
