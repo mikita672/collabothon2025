@@ -4,3 +4,5 @@ frontend/.vscode
 /backend/__pycache__
 frontend/node_modules
 frontend/package-lock.json
+/backend/services/gemini_summarizer/__pycache__
+.vscode
