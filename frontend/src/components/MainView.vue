@@ -119,3 +119,13 @@ const { selectedNews, selectNews, clearSelection } = useNewsSelection()
   }
 }
 </style>
+-width: 960px) {
+  .split-layout {
+    flex-direction: column;
+  }
+  
+  .empty-section {
+    display: none;
+  }
+}
+</style>
