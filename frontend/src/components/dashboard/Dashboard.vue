@@ -1,10 +1,12 @@
 <template>
   <v-container fluid style="min-height: 100vh; background-color: #f9f9fb" class="pa-6">
+    <h1 style="font-family: afacad">AI Portfolio Dashboard</h1>
+    <h3 style="font-family: afacad" class="font-weight-light">
+      Your AI-managed investment portfolio performance and holdings
+    </h3>
     <v-row>
       <v-col cols="12">
-        <v-card class="pa-4" rounded="lg">
-          <v-card-title class="text-h6 font-weight-medium"> Market Performance </v-card-title>
-          <v-card-subtitle>Last 7 Months</v-card-subtitle>
+        <v-card class="pa-4 outlined-card" rounded="lg">
           <v-card-text>
             <Line id="my-chart-id" :options="chartOptions" :data="chartData" />
           </v-card-text>
@@ -61,16 +63,14 @@ ChartJS.register(
   Filler,
 )
 
-// --- Chart Data Changes (Adjusted for no fill) ---
 const chartData = ref({
   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
   datasets: [
     {
       label: 'Stock Prices',
-      // No backgroundColor needed for fill now
-      borderColor: '#42A5F5', // Keep the strong blue line
+      borderColor: '#FFD501',
       data: [40, 39, 10, 40, 39, 80, 40],
-      fill: false, // <-- Set to false to remove the fill
+      fill: false,
       tension: 0.4,
       pointRadius: 0,
       pointHoverRadius: 6,
@@ -79,7 +79,6 @@ const chartData = ref({
   ],
 })
 
-// --- Chart Options (No changes needed here for fill) ---
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
@@ -90,6 +89,14 @@ const chartOptions = ref({
     tooltip: {
       mode: 'index' as const,
       intersect: false,
+    },
+  },
+  elements: {
+    line: {
+      borderWidth: 2,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      shadowBlur: 0,
     },
   },
   scales: {
@@ -117,3 +124,10 @@ const chartOptions = ref({
   },
 })
 </script>
+
+<style scoped>
+.outlined-card {
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+}
+</style>

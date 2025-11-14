@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@fontsource/afacad": "^5.2.10",
     "@mdi/font": "^7.4.47",
     "chart.js": "^4.5.1",
     "firebase": "^12.6.0",

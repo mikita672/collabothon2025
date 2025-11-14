@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <p class="font-weight-medium text-center" style="font-family: Afacad">Current Value</p>
+  <div style="width: 17vw">
+    <p class="font-weight-medium text-center" style="font-family: Afacad">Current Balance</p>
     <v-card
       rounded="lg"
       elevation="0"
