@@ -1,6 +1,6 @@
 <template>
   <v-card rounded="lg">
-    <div class="d-flex flex-column ga-3">
+    <div class="d-flex flex-column ga-3 pa-5">
       <SingleHoldingWidget
         v-for="holding in holdings"
         :key="holding.id"
@@ -25,7 +25,6 @@ interface Holding {
   totalValue: number
 }
 
-// Mock data - replace with props or API call later
 const holdings = ref<Holding[]>([
   {
     id: '1',
