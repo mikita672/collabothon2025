@@ -47,7 +47,7 @@ const handleClick = () => {
 
       <!-- Content -->
       <div class="flex-grow-1" style="min-width: 0;">
-        <div class="text-body-1 text-grey-darken-4 mb-2">
+        <div class="text-body-1 text-grey-darken-4 mb-2 text-h5 " style="font-family: Afacad; color: #002e3c">
           {{ news.title }}
         </div>
 
@@ -56,7 +56,7 @@ const handleClick = () => {
           <v-chip 
             size="x-small" 
             variant="outlined"
-            class="badge-text"
+            class="badge-text text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c"
           >
             {{ news.ticker }}
           </v-chip>
@@ -65,7 +65,7 @@ const handleClick = () => {
           <v-chip 
             size="x-small"
             :class="sentimentBadgeClass"
-            class="badge-text"
+            class="badge-text text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c"
           >
             {{ news.sentiment }}
           </v-chip>
@@ -76,7 +76,7 @@ const handleClick = () => {
             size="x-small"
             variant="outlined"
             :class="priceImpactClass"
-            class="badge-text"
+            class="badge-text text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c"
           >
             {{ news.priceImpact > 0 ? '+' : '' }}{{ news.priceImpact }}%
           </v-chip>

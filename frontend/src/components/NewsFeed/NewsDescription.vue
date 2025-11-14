@@ -45,32 +45,32 @@ onUnmounted(() => {
   <v-dialog 
     :model-value="!!news" 
     @update:model-value="handleClose"
-    max-width="700"
-    scrollable
+    max-width="500"
   >
     <v-card v-if="news" class="dialog-card">
       <v-card-title class="px-0 pt-0 pb-0">
         <div class="dialog-header">
-          <h2 class="text-h6 font-weight-bold">{{ news.title }}</h2>
+          <h2 class="text-h8 font-weight-bold text-h8 font-weight-bold text-wrap" style="font-family: Afacad; color: #002e3c">{{ news.title }}</h2>
         </div>
       </v-card-title>
 
       <v-card-text class="px-0 py-0">
         <div class="content-sections">
           <!-- Badges -->
-          <div class="d-flex align-center flex-wrap mb-4" style="gap: 8px;">
-            <v-chip size="x-small" variant="outlined" class="badge-text">
+          <div class="d-flex align-center flex-wrap mb-4" style="gap: 8px; font-family: Afacad; color: #002e3c">
+            <v-chip size="small" variant="outlined" class="badge-text">
               {{ news.ticker }}
             </v-chip>
             <v-chip 
-              size="x-small"
+              size="small"
+              style="font-family: Afacad; color: #002e3c"
               :class="isPositive ? 'sentiment-positive' : 'sentiment-negative'"
               class="badge-text"
             >
               {{ news.sentiment }}
             </v-chip>
             <v-chip 
-              size="x-small"
+              size="small"
               variant="outlined"
               :class="isPositive ? 'price-positive' : 'price-negative'"
               class="badge-text"
@@ -78,7 +78,7 @@ onUnmounted(() => {
               <v-icon 
                 start
                 :icon="isPositive ? 'mdi-trending-up' : 'mdi-trending-down'" 
-                size="10"
+                size="12  "
               ></v-icon>
               {{ news.priceImpact > 0 ? '+' : '' }}{{ news.priceImpact }}% price impact
             </v-chip>
@@ -86,13 +86,12 @@ onUnmounted(() => {
 
           <!-- Summary -->
           <div class="mb-4">
-            <h3 class="text-body-1 font-weight-bold mb-2">Summary</h3>
-            <p class="text-body-2 text-grey-darken-1 mb-2" style="line-height: 1.5;">{{ news.summary }}</p>
+            <h3 class="text-body-6 font-weight-bold mb-2" style="font-family: Afacad; color: #002e3c">Summary</h3>
+            <p class="text-h6 text-grey-darken-1 mb-3" style="line-height: 1.5; font-family: Afacad; color: #002e3c">{{ news.summary }}</p>
             <v-btn 
               variant="text" 
               color="primary"
-              class="px-0 link-button"
-              size="small"
+              class="px-0 link-button font-weight-bold"
               @click="openSource"
             >
               Read original source
@@ -120,7 +119,7 @@ onUnmounted(() => {
                 <v-icon color="white" size="18">mdi-school</v-icon>
               </div>
               <div class="flex-grow-1">
-                <h3 class="text-body-1 font-weight-bold mb-1 education-title">
+                <h3 class="text-body-1 font-weight-bold mb-1 education-title" style="line-height: 1.5; font-family: Afacad; color: #002e3c">
                   Why This Matters
                 </h3>
                 <p class="text-body-2 education-text" style="line-height: 1.4;">
@@ -164,8 +163,7 @@ onUnmounted(() => {
 }
 
 .badge-text {
-  font-size: 0.75rem !important;
-  height: 18px !important;
+  font-size: 0.875rem !important;
   font-weight: 500;
 }
 

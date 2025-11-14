@@ -6,7 +6,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex flex-column align-center">
               <!-- Title -->
-              <h1 class="text-h6 text-center mb-1">Create Account</h1>
+              <h1 class="text-h6 text-center mb-1" color="#002e3d">Create Account</h1>
               <p class="text-caption text-center text-grey-darken-1 mb-3">
                 Join CommerzBank
               </p>
@@ -99,7 +99,7 @@
 
                 <!-- Login Link -->
                 <div class="text-center mt-3">
-                  <p class="text-body-2 text-grey-darken-1">
+                  <p class="text-grey-darken-1 mt-6 mb-4">
                     Already have an account?
                     <a href="#" class="text-primary font-weight-medium" @click.prevent="goToLogin">
                       Sign In
@@ -172,7 +172,7 @@ const goToLogin = () => {
 
 <style scoped>
 .gradient-background {
-  background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 50%, #f3e8ff 100%);
+  background: #002e3d;
   min-height: 100vh;
   padding: 0.5rem 0;
   overflow: hidden;
@@ -189,17 +189,17 @@ const goToLogin = () => {
 }
 
 .gradient-button {
-  background: linear-gradient(90deg, #3b82f6 0%, #4f46e5 100%) !important;
+  background: #002e3d !important;
   color: white !important;
   font-weight: 500 !important;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(0, 46, 61, 0.25) !important;
   transition: all 0.3s ease !important;
 }
 
 .gradient-button:hover:not(:disabled) {
-  background: linear-gradient(90deg, #2563eb 0%, #4338ca 100%) !important;
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35) !important;
+  background: #004a5f !important;
+  box-shadow: 0 6px 16px rgba(0, 46, 61, 0.35) !important;
   transform: translateY(-2px);
 }
 

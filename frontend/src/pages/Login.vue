@@ -86,10 +86,10 @@
                   <v-btn
                     v-if="!isChecking"
                     @click="handleStartChecking"
-                    color="primary"
                     size="small"
+                    color="#002e3d"
                     block
-                    class="mb-2 gradient-button text-none"
+                    class="mb-2  text-none"
                     height="40"
                   >
                     <v-icon size="18" class="mr-1">mdi-qrcode-scan</v-icon>
@@ -262,7 +262,7 @@ watch(isChecking, (newValue) => {
 
 <style scoped>
 .gradient-background {
-  background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 50%, #f3e8ff 100%);
+  background: #002e3d;
   min-height: 100vh;
   padding: 0.5rem 0;
   overflow: hidden;
