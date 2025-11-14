@@ -64,19 +64,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-
-interface NewsItem {
-  id: string;
-  title: string;
-  ticker: string;
-  sentiment: 'positive' | 'negative' | 'neutral';
-  priceImpact: number;
-  timestamp: string;
-  company: string;
-  summary: string;
-  sourceUrl: string;
-  educationalNote: string;
-}
+import type { NewsItem } from '@/types/news';
+import { getSentimentIcon, getSentimentColor, getSentimentBadgeClass } from '@/utils/sentiment';
+import { formatTimeAgo } from '@/utils/formatters';
 
 interface Props {
   news: NewsItem;
@@ -87,53 +77,15 @@ const emit = defineEmits<{
   click: [news: NewsItem];
 }>();
 
-const sentimentIcon = computed(() => {
-  switch (props.news.sentiment) {
-    case 'positive':
-      return 'mdi-trending-up';
-    case 'negative':
-      return 'mdi-trending-down';
-    default:
-      return 'mdi-minus';
-  }
-});
-
-const sentimentColor = computed(() => {
-  switch (props.news.sentiment) {
-    case 'positive':
-      return '#059669';
-    case 'negative':
-      return '#dc2626';
-    default:
-      return '#6b7280';
-  }
-});
-
-const sentimentBadgeClass = computed(() => {
-  switch (props.news.sentiment) {
-    case 'positive':
-      return 'sentiment-positive';
-    case 'negative':
-      return 'sentiment-negative';
-    default:
-      return 'sentiment-neutral';
-  }
-});
+const sentimentIcon = computed(() => getSentimentIcon(props.news.sentiment));
+const sentimentColor = computed(() => getSentimentColor(props.news.sentiment));
+const sentimentBadgeClass = computed(() => getSentimentBadgeClass(props.news.sentiment));
 
 const priceImpactClass = computed(() => {
   return props.news.priceImpact > 0 ? 'price-positive' : 'price-negative';
 });
 
-const formattedTime = computed(() => {
-  const date = new Date(props.news.timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-  
-  if (diffHrs < 1) return 'Just now';
-  if (diffHrs < 24) return `${diffHrs}h ago`;
-  return `${Math.floor(diffHrs / 24)}d ago`;
-});
+const formattedTime = computed(() => formatTimeAgo(props.news.timestamp));
 
 const handleClick = () => {
   emit('click', props.news);

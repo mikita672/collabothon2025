@@ -1,136 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import NewsCard from "./NewsFeed/NewsCard.vue"
 import NewsDescription from "./NewsFeed/NewsDescription.vue"
+import { useNewsData } from '@/composables/useNewsData'
+import { useNewsSelection } from '@/composables/useNewsSelection'
 
-const selectedNews = ref<any>(null)
-
-const newsItems = ref([
-  {
-    id: '1',
-    title: 'Apple announces new AI chip for iPhone',
-    ticker: 'AAPL',
-    sentiment: 'positive' as const,
-    priceImpact: 2.5,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    company: 'Apple Inc.',
-    summary: 'Apple has announced a breakthrough AI chip that will power next-generation iPhones, promising 40% better performance.',
-    sourceUrl: 'https://example.com/apple-ai-chip',
-    educationalNote: 'Hardware innovations in AI processing can significantly impact a company\'s competitive position and stock value.'
-  },
-  {
-    id: '2',
-    title: 'Tesla faces production delays in new facility',
-    ticker: 'TSLA',
-    sentiment: 'negative' as const,
-    priceImpact: -1.8,
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    company: 'Tesla Inc.',
-    summary: 'Tesla reports delays in ramping up production at its new manufacturing facility, affecting delivery targets.',
-    sourceUrl: 'https://example.com/tesla-delays',
-    educationalNote: 'Production delays can affect quarterly earnings and investor confidence, often leading to short-term stock volatility.'
-  },
-  {
-    id: '3',
-    title: 'Apple announces new AI chip for iPhone',
-    ticker: 'AAPL',
-    sentiment: 'positive' as const,
-    priceImpact: 2.5,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    company: 'Apple Inc.',
-    summary: 'Apple has announced a breakthrough AI chip that will power next-generation iPhones, promising 40% better performance.',
-    sourceUrl: 'https://example.com/apple-ai-chip',
-    educationalNote: 'Hardware innovations in AI processing can significantly impact a company\'s competitive position and stock value.'
-  },
-  {
-    id: '4',
-    title: 'Apple announces new AI chip for iPhone',
-    ticker: 'AAPL',
-    sentiment: 'positive' as const,
-    priceImpact: 2.5,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    company: 'Apple Inc.',
-    summary: 'Apple has announced a breakthrough AI chip that will power next-generation iPhones, promising 40% better performance.',
-    sourceUrl: 'https://example.com/apple-ai-chip',
-    educationalNote: 'Hardware innovations in AI processing can significantly impact a company\'s competitive position and stock value.'
-  },
-  {
-    id: '5',
-    title: 'Apple announces new AI chip for iPhone',
-    ticker: 'AAPL',
-    sentiment: 'positive' as const,
-    priceImpact: 2.5,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    company: 'Apple Inc.',
-    summary: 'Apple has announced a breakthrough AI chip that will power next-generation iPhones, promising 40% better performance.',
-    sourceUrl: 'https://example.com/apple-ai-chip',
-    educationalNote: 'Hardware innovations in AI processing can significantly impact a company\'s competitive position and stock value.'
-  },
-  {
-    id: '6',
-    title: 'Apple announces new AI chip for iPhone',
-    ticker: 'AAPL',
-    sentiment: 'positive' as const,
-    priceImpact: 2.5,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    company: 'Apple Inc.',
-    summary: 'Apple has announced a breakthrough AI chip that will power next-generation iPhones, promising 40% better performance.',
-    sourceUrl: 'https://example.com/apple-ai-chip',
-    educationalNote: 'Hardware innovations in AI processing can significantly impact a company\'s competitive position and stock value.'
-  },
-])
-
-const stockData = ref([
-  { date: '2024-01-01', price: 150 },
-  { date: '2024-01-05', price: 155 },
-  { date: '2024-01-10', price: 152 },
-  { date: '2024-01-15', price: 158 },
-  { date: '2024-01-20', price: 162 },
-  { date: '2024-01-25', price: 165 },
-  { date: '2024-01-30', price: 168 }
-])
-
-const handleNewsClick = (news: any) => {
-  selectedNews.value = news
-}
-
-const closeNewsDetail = () => {
-  selectedNews.value = null
-}
+// Data
+const { newsItems, stockData } = useNewsData()
+// Selection management
+const { selectedNews, selectNews, clearSelection } = useNewsSelection()
 
 </script>
 
 <template>
   <main class="main-container">
     <div class="content-wrapper">
-        <!-- Header -->
         <div class="header-section">
             <p class="text-grey-darken-1">Latest news affecting your AI portfolio companies</p>
         </div>
 
-        <!-- Split View -->
         <div class="split-layout">
-          <!-- Left Side - News List -->
           <div class="news-section">
             <NewsCard
               v-for="item in newsItems"
               :key="item.id"
               :news="item"
-              @click="handleNewsClick"
+              @click="selectNews"
             />
           </div>
 
-          <!-- Right Side - Empty -->
           <div class="empty-section">
             <!-- Empty space -->
           </div>
         </div>
 
-        <!-- Popup Dialog -->
+        <!-- Popup -->
         <NewsDescription
           :news="selectedNews"
           :stock-data="stockData"
-          @close="closeNewsDetail"
+          @close="clearSelection"
         />
     </div>
   </main>

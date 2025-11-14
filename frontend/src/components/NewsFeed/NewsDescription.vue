@@ -105,25 +105,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, onUnmounted } from 'vue';
-
-interface StockDataPoint {
-  date: string;
-  price: number;
-}
-
-interface NewsItem {
-  id: string;
-  title: string;
-  ticker: string;
-  sentiment: 'positive' | 'negative' | 'neutral';
-  priceImpact: number;
-  timestamp: string;
-  company: string;
-  summary: string;
-  sourceUrl: string;
-  educationalNote: string;
-}
+import { computed, watch, onUnmounted } from 'vue';
+import type { NewsItem, StockDataPoint } from '@/types/news';
+import { useChartDrawing } from '@/composables/useChartDrawing';
 
 interface Props {
   news: NewsItem | null;
@@ -135,7 +119,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
+const { chartCanvas, drawChart } = useChartDrawing();
 let chartInstance: any = null;
 
 const isPositive = computed(() => props.news?.sentiment === 'positive');
@@ -150,89 +134,11 @@ const openSource = () => {
   }
 };
 
-// Simple chart rendering (you can integrate a proper chart library like Chart.js if needed)
 watch(() => props.news, (newNews) => {
   if (newNews && chartCanvas.value && props.stockData.length > 0) {
-    drawChart();
+    drawChart(chartCanvas.value, props.stockData, isPositive.value);
   }
 }, { immediate: true });
-
-const drawChart = () => {
-  if (!chartCanvas.value || !props.stockData.length) return;
-  
-  const canvas = chartCanvas.value;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  // Set canvas size with higher DPI for clarity
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = 200 * dpr;
-  canvas.style.width = rect.width + 'px';
-  canvas.style.height = '200px';
-  ctx.scale(dpr, dpr);
-
-  const padding = 50;
-  const width = rect.width - padding * 2;
-  const height = 200 - padding * 2;
-
-  const prices = props.stockData.map(d => d.price);
-  const minPrice = Math.min(...prices) - 10;
-  const maxPrice = Math.max(...prices) + 10;
-  const priceRange = maxPrice - minPrice;
-
-  ctx.clearRect(0, 0, rect.width, 200);
-
-  // Draw grid lines
-  ctx.strokeStyle = '#e5e7eb';
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = padding + (height / 4) * i;
-    ctx.beginPath();
-    ctx.moveTo(padding, y);
-    ctx.lineTo(rect.width - padding, y);
-    ctx.stroke();
-  }
-
-  // Draw X-axis dates
-  ctx.fillStyle = '#6b7280';
-  ctx.font = '11px system-ui';
-  ctx.textAlign = 'center';
-  props.stockData.forEach((point, index) => {
-    if (index % Math.ceil(props.stockData.length / 5) === 0) {
-      const x = padding + (width / (props.stockData.length - 1)) * index;
-      const date = new Date(point.date);
-      ctx.fillText(`${date.getMonth() + 1}/${date.getDate()}`, x, 200 - 8);
-    }
-  });
-
-  // Draw Y-axis labels
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const y = padding + (height / 4) * i;
-    const price = maxPrice - (priceRange / 4) * i;
-    ctx.fillText('$' + price.toFixed(0), padding - 10, y + 4);
-  }
-
-  // Draw line
-  ctx.strokeStyle = isPositive.value ? '#10b981' : '#ef4444';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-
-  props.stockData.forEach((point, index) => {
-    const x = padding + (width / (props.stockData.length - 1)) * index;
-    const y = padding + height - ((point.price - minPrice) / priceRange) * height;
-
-    if (index === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
-  });
-
-  ctx.stroke();
-};
 
 onUnmounted(() => {
   if (chartInstance) {
