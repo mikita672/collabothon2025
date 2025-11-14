@@ -1,53 +1,33 @@
-from typing import Dict, List, Optional
-from fastapi import APIRouter, HTTPException
+from typing import List
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from services.average_mu import (
-    compute_average,
-    compute_and_store_average,
-    bulk_compute_and_store,
-    get_average,
-    get_all_averages,
-    clear_averages,
-)
+from services.average_mu import compute_average, generate_student_t_graph
 
 router = APIRouter(tags=["averages"])
-
-class NumbersPayload(BaseModel):
-    numbers: List[float]
 
 class PricesPayload(BaseModel):
     prices: List[float]
 
-class BulkPayload(BaseModel):
-    items: Dict[str, List[float]]
-
 @router.post("/average")
-def average_endpoint(body: NumbersPayload) -> Dict[str, Optional[float]]:
-    return {"average": compute_average(body.numbers)}
-
-@router.post("/averages/{symbol}")
-def store_average(symbol: str, body: PricesPayload) -> Dict[str, float]:
-    avg = compute_and_store_average(symbol, body.prices)
+def average_endpoint(body: PricesPayload):
+    avg = compute_average(body.prices)
     if avg is None:
         raise HTTPException(status_code=400, detail="Empty prices")
-    return {"symbol": symbol.upper(), "average": avg}
+    return {"average": avg}
 
-@router.post("/averages/bulk")
-def store_bulk(body: BulkPayload) -> Dict[str, float]:
-    return bulk_compute_and_store(body.items)
-
-@router.get("/averages/{symbol}")
-def read_average(symbol: str) -> Dict[str, float]:
-    avg = get_average(symbol)
-    if avg is None:
-        raise HTTPException(status_code=404, detail="Not found")
-    return {"symbol": symbol.upper(), "average": avg}
-
-@router.get("/averages")
-def read_all() -> Dict[str, float]:
-    return get_all_averages()
-
-@router.delete("/averages")
-def clear() -> Dict[str, str]:
-    clear_averages()
-    return {"status": "cleared"}
+@router.post("/graph/{symbol}")
+def graph_symbol(symbol: str,
+                 body: PricesPayload,
+                 points: int = Query(50, ge=1, le=1000),
+                 df: int = Query(5, ge=1, le=100),
+                 scale: float = Query(1.0, gt=0)):
+    result = generate_student_t_graph(body.prices, points=points, df=df, scale=scale)
+    if result["average"] is None:
+        raise HTTPException(status_code=400, detail="Empty prices")
+    return {
+        "symbol": symbol.upper(),
+        "average": result["average"],
+        "e": result["e"],
+        "y": result["y"],
+        "params": {"points": points, "df": df, "scale": scale}
+    }
