@@ -1,7 +1,8 @@
 # gemini_summarizer.py
-from .config import get_gemini_client
+from services.gemini_summarizer.config import get_gemini_client
 
 _client = get_gemini_client()
+
 
 def summarize_text(
     article_text: str,
