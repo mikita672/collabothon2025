@@ -7,10 +7,10 @@ _client = get_gemini_client()
 
 def summarize_text(article_text: str, language: str = "en") -> str:
     """
-    Отправляет текст новости в модель Gemini и возвращает краткое резюме.
+    Sends the news article text to the Gemini model and returns a brief summary.
 
-    :param article_text: исходный текст новости
-    :param language: язык ответа ('ru' или 'en' и т.д.)
+    :param article_text: input text of the article to summarize
+    :param language: ('ru' or 'en' ect.)
     """
     if not article_text.strip():
         return "No text provided for summarization."

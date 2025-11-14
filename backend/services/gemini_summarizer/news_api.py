@@ -6,12 +6,11 @@ from config import get_newsapi_key
 
 def fetch_top_headlines(country: str = "us", page_size: int = 3) -> List[Dict]:
     """
-    Получает топ-новости из NewsAPI для указанной страны.
-    Документация: https://newsapi.org
+    Gets top headlines from NewsAPI.
 
-    :param country: код страны (например, 'us')
-    :param page_size: сколько новостей забрать
-    :return: список словарей со статьями
+    :param country: country code (например, 'us')
+    :param page_size: number of articles to fetch
+    :return: list of articles as dictionaries
     """
     api_key = get_newsapi_key()
     url = "https://newsapi.org/v2/top-headlines"
@@ -32,8 +31,8 @@ def fetch_top_headlines(country: str = "us", page_size: int = 3) -> List[Dict]:
 
 def build_article_text(article: Dict) -> str:
     """
-    Собирает текст новости из полей title, description и content.
-    NewsAPI не всегда отдаёт полный текст, поэтому комбинируем то, что есть.
+    Collects title, description, and content from an article dict
+    and combines them into a single text block.
     """
     title = article.get("title") or ""
     description = article.get("description") or ""
