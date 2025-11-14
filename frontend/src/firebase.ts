@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "***REMOVED***",
-  authDomain: "***REMOVED***",
-  projectId: "***REMOVED***",
-  storageBucket: "***REMOVED***.firebasestorage.app",
-  messagingSenderId: "***REMOVED***",
-  appId: "1:***REMOVED***:web:8f11c2e602b8d2f0775395"
+  apiKey: "AIzaSyCiDMw6RAcQLECgPvtwOEgAxaij27qDvvs",
+  authDomain: "collabothon2025-f1484.firebaseapp.com",
+  projectId: "collabothon2025-f1484",
+  storageBucket: "collabothon2025-f1484.firebasestorage.app",
+  messagingSenderId: "938406849296",
+  appId: "1:938406849296:web:8f11c2e602b8d2f0775395"
 };
 
 const app = initializeApp(firebaseConfig);
