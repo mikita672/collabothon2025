@@ -1,3 +1,4 @@
+import 'package:application/pages/auth_page.dart';
 import 'package:application/pages/dashboard_page.dart';
 import 'package:application/pages/learning_page.dart';
 import 'package:application/pages/news_page.dart';
@@ -5,8 +6,14 @@ import 'package:application/pages/qr_scanner_page.dart';
 import 'package:application/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:firebase_core/firebase_core.dart';
+ import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(const MyApp());
 }
 
@@ -21,7 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 220, 226, 252)),
         fontFamily: 'Afacad'
       ),
-      home: const NavigationView(),
+      home: AuthPage(),
     );
   }
 }
