@@ -9,11 +9,14 @@
       />
     </div>
   </v-card>
+
+  <HoldingPopup v-model="isDialogOpen" :holding="selectedHolding" @close="isDialogOpen = false" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import SingleHoldingWidget from './SingleHoldingWidget.vue'
+import HoldingPopup from './HoldingPopup.vue'
 
 interface Holding {
   id: string
@@ -64,8 +67,11 @@ const holdings = ref<Holding[]>([
   },
 ])
 
+const isDialogOpen = ref(false)
+const selectedHolding = ref<Holding | null>(null)
+
 const handleHoldingClick = (holding: Holding) => {
-  console.log('Clicked on:', holding)
-  // Handle click event - navigate to details, open dialog, etc.
+  selectedHolding.value = holding
+  isDialogOpen.value = true
 }
 </script>
