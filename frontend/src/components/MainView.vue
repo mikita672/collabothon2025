@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import NewsCard from "./NewsFeed/NewsCard.vue"
-import NewsDescription from "./NewsFeed/NewsDescription.vue"
+import Dashboard from './dashboard/Dashboard.vue'
+import NewsCard from './NewsFeed/NewsCard.vue'
+import NewsDescription from './NewsFeed/NewsDescription.vue'
 import { useNewsData } from '@/composables/useNewsData'
 import { useNewsSelection } from '@/composables/useNewsSelection'
 
@@ -11,32 +12,23 @@ const { selectedNews, selectNews, clearSelection } = useNewsSelection()
 <template>
   <main class="main-container">
     <div class="content-wrapper">
-        <div class="header-section">
-            <h class="text-black-darken-1 text-bold text-2xl">Portfolio News Feed</h>
-            <p class="text-grey-darken-1">Latest news affecting your AI portfolio companies</p>
+      <div class="header-section">
+        <h class="text-black-darken-1 text-bold text-2xl">Portfolio News Feed</h>
+        <p class="text-grey-darken-1">Latest news affecting your AI portfolio companies</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="news-section">
+          <NewsCard v-for="item in newsItems" :key="item.id" :news="item" @click="selectNews" />
         </div>
 
-        <div class="split-layout">
-          <div class="news-section">
-            <NewsCard
-              v-for="item in newsItems"
-              :key="item.id"
-              :news="item"
-              @click="selectNews"
-            />
-          </div>
-
-          <div class="empty-section">
-            <!-- Empty space for stats -->
-          </div>
+        <div class="dashboard-section">
+          <Dashboard />
         </div>
+      </div>
 
-        <!-- Popup -->
-        <NewsDescription
-          :news="selectedNews"
-          :stock-data="stockData"
-          @close="clearSelection"
-        />
+      <!-- Popup -->
+      <NewsDescription :news="selectedNews" :stock-data="stockData" @close="clearSelection" />
     </div>
   </main>
 </template>
@@ -110,22 +102,19 @@ const { selectedNews, selectNews, clearSelection } = useNewsSelection()
   background: #94a3b8;
 }
 
-.empty-section {
+.dashboard-section {
   flex: 1;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 16px;
-  border: 2px dashed #e2e8f0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 @media (max-width: 960px) {
   .split-layout {
     flex-direction: column;
   }
-  
-  .empty-section {
+
+  .dashboard-section {
     display: none;
   }
 }

@@ -1,22 +1,24 @@
 <template>
   <v-container fluid style="min-height: 100vh; background-color: #f9f9fb" class="pa-6">
-    <v-col cols="12" lg="8">
-      <v-card class="pa-4" rounded="lg" variant="outlined">
-        <v-card-title class="text-h6 font-weight-medium"> Market Performance </v-card-title>
-        <v-card-subtitle>Last 7 Months</v-card-subtitle>
-        <v-card-text>
-          <Line id="my-chart-id" :options="chartOptions" :data="chartData" />
-        </v-card-text>
-      </v-card>
-    </v-col>
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-4" rounded="lg">
+          <v-card-title class="text-h6 font-weight-medium"> Market Performance </v-card-title>
+          <v-card-subtitle>Last 7 Months</v-card-subtitle>
+          <v-card-text>
+            <Line id="my-chart-id" :options="chartOptions" :data="chartData" />
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <v-row>
       <v-col cols="12">
         <CardsOverview />
       </v-col>
 
-      <v-col cols="12" lg="4">
-        <v-card rounded="lg" variant="outlined">
+      <v-col>
+        <v-card rounded="lg">
           <PortfolioOverview />
         </v-card>
       </v-col>
