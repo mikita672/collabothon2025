@@ -29,6 +29,7 @@ const handleClick = () => {
 
 <template>
   <v-card 
+    rounded="lg"
     class="news-card pa-4" 
     elevation="0"
     @click="handleClick"
