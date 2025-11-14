@@ -1,19 +1,24 @@
 <template>
-  <v-card rounded="lg">
-    <v-card-text class="pa-5">
-      <div class="d-flex align-center mb-6">
-        <v-avatar color="purple-lighten-5" rounded="lg" class="mr-3">
-          <v-icon color="purple" icon="mdi-chart-pie"></v-icon>
-        </v-avatar>
-
-        <div class="text-subtitle-1 text-medium-emphasis">Total Invested</div>
+  <div>
+    <p class="font-weight-medium text-center" style="font-family: Afacad">Total Invested</p>
+    <v-card
+      rounded="lg"
+      elevation="0"
+      class="d-flex align-center justify-center outlined-card"
+      style="height: 5vh"
+    >
+      <div class="text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c">
+        €4321.85
       </div>
-
-      <div class="text-h5 font-weight-medium mb-1">$847 500</div>
-
-      <div class="text-subtitle-1 text-medium-emphasis">84.8% deployed</div>
-    </v-card-text>
-  </v-card>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts"></script>
+
+<style scoped>
+.outlined-card {
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+}
+</style>
