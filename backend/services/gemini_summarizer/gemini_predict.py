@@ -8,23 +8,85 @@ from services.gemini_summarizer.config import get_gemini_client
 _client = get_gemini_client()
 
 
+def _parse_price_impact(raw: str) -> Dict[str, Any]:
+    """
+    Разбирает сырое текстовое сообщение от модели и пытается достать:
+    - priceImpactExplanation: str
+    - priceImpactScore: float
+
+    Обрабатывает случаи:
+    - чистый JSON
+    - JSON внутри ```json ... ```
+    - JSON как подстрока внутри ответа
+    - если JSON нет — берёт всё как explanation и последнее число как score
+    """
+    text = raw.strip()
+
+    # 1) Снимаем markdown-кодблоки ```...``` / ```json ... ```
+    if text.startswith("```"):
+        lines = text.splitlines()
+        # убрать первую линию с ``` или ```json
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        # убрать последнюю линию с ```
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+
+    # 2) Пытаемся распарсить как чистый JSON
+    try:
+        data = json.loads(text)
+        if isinstance(data, dict) and (
+            "priceImpactExplanation" in data or "priceImpactScore" in data
+        ):
+            return data
+    except json.JSONDecodeError:
+        pass
+
+    # 3) Пробуем вытащить первый JSON-объект как подстроку {...}
+    m = re.search(r"\{[\s\S]*\}", text)
+    if m:
+        json_chunk = m.group(0)
+        try:
+            data = json.loads(json_chunk)
+            if isinstance(data, dict):
+                return data
+        except json.JSONDecodeError:
+            pass
+
+    # 4) Фолбэк: возвращаем весь текст как explanation,
+    #    а score берём как ПОСЛЕДНЕЕ число в тексте
+    matches = list(re.finditer(r"-?\d+(\.\d+)?", text))
+    if matches:
+        try:
+            score = float(matches[-1].group())  # последнее число, а не первое
+        except ValueError:
+            score = 0.0
+    else:
+        score = 0.0
+
+    return {
+        "priceImpactExplanation": text,
+        "priceImpactScore": score,
+    }
+
+
 def news_prediction(
     article_text: str,
     max_retries: int = 3,
     initial_delay: float = 1.0,
 ) -> Dict[str, Any]:
     """
-    Анализирует новость с помощью Gemini и возвращает JSON-совместимый dict:
+    Анализирует новость с помощью Gemini и возвращает dict:
 
     {
       "priceImpactExplanation": <str>,
       "priceImpactScore": <float>
     }
 
-    Повторяет попытку при 503/overloaded/unavailable.
+    Обрабатывает 503/overloaded/unavailable с повторными попытками.
     """
 
-    # Базовый дефолт, чтобы всегда был предсказуемый формат
     default_response: Dict[str, Any] = {
         "priceImpactExplanation": "No text provided for prediction.",
         "priceImpactScore": 0.0,
@@ -82,41 +144,19 @@ def news_prediction(
                     "priceImpactScore": 0.0,
                 }
 
-            # 1) пробуем распарсить как чистый JSON
-            try:
-                data = json.loads(raw)
-            except json.JSONDecodeError:
-                # 2) если JSON кривой, возвращаем текст как explanation и вытягиваем число регуляркой
-                opinion = raw
-                match = re.search(r"-?\d+(\.\d+)?", raw)
-                score = float(match.group()) if match else 0.0
+            # КЛЮЧЕВОЕ: аккуратно парсим, учитывая ```json``` и вложенный JSON
+            data = _parse_price_impact(raw)
 
-                # нормализуем в диапазон [-10, 10]
-                if score < -10:
-                    score = -10.0
-                elif score > 10:
-                    score = 10.0
-
-                return {
-                    "priceImpactExplanation": opinion.strip() or "No explanation parsed from model output.",
-                    "priceImpactScore": float(score),
-                }
-
-            # 3) если JSON нормальный
             opinion = str(data.get("priceImpactExplanation", "")).strip()
             score_value = data.get("priceImpactScore", 0.0)
 
-            # приводим score к float (строка/число — неважно)
-            if isinstance(score_value, str):
-                match = re.search(r"-?\d+(\.\d+)?", score_value)
-                score = float(match.group()) if match else 0.0
-            else:
-                try:
-                    score = float(score_value)
-                except (TypeError, ValueError):
-                    score = 0.0
+            # приводим score к float
+            try:
+                score = float(score_value)
+            except (TypeError, ValueError):
+                score = 0.0
 
-            # нормализуем диапазон
+            # нормализуем в диапазон [-10, 10]
             if score < -10:
                 score = -10.0
             elif score > 10:
@@ -134,13 +174,12 @@ def news_prediction(
             last_error = e
             error_str = str(e)
 
-            # 503 / overloaded / unavailable → делаем retry
             if (
                 "503" in error_str
                 or "overloaded" in error_str.lower()
                 or "unavailable" in error_str.lower()
             ) and attempt < max_retries - 1:
-                delay = initial_delay * (2 ** attempt)  # 1s, 2s, 4s...
+                delay = initial_delay * (2 ** attempt)
                 print(
                     f"[Attempt {attempt + 1}/{max_retries}] Service unavailable. "
                     f"Retrying in {delay}s..."
@@ -148,13 +187,11 @@ def news_prediction(
                 time.sleep(delay)
                 continue
 
-            # не восстановились — возвращаем дефолт с описанием ошибки
             return {
                 "priceImpactExplanation": f"Error while calling model: {error_str}",
                 "priceImpactScore": 0.0,
             }
 
-    # если вдруг вышли из цикла без return
     return {
         "priceImpactExplanation": f"Failed to get prediction after {max_retries} attempts: {last_error}",
         "priceImpactScore": 0.0,
