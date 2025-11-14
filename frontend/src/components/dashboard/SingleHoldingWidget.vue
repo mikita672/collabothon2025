@@ -1,11 +1,5 @@
 <template>
-  <v-card
-    variant="outlined"
-    rounded="lg"
-    class="pa-4 cursor-pointer"
-    hover
-    @click="$emit('click', holding)"
-  >
+  <v-card rounded="lg" class="pa-4 cursor-pointer" hover @click="$emit('click', holding)">
     <v-row align="center" justify="space-between">
       <v-col cols="auto">
         <div class="d-flex align-center ga-3">

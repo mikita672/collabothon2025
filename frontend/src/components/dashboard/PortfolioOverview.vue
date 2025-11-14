@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="outlined" rounded="lg" class="pa-6 mt-8">
+  <v-card rounded="lg" class="pa-6 mt-8">
     <h3 class="text-h5 font-weight-medium mb-6">Portfolio Holdings</h3>
 
     <div class="d-flex flex-column ga-3">

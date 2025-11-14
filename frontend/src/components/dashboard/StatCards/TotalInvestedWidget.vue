@@ -1,5 +1,5 @@
 <template>
-  <v-card width="300" variant="outlined" rounded="lg">
+  <v-card width="300" rounded="lg">
     <v-card-text class="pa-5">
       <div class="d-flex align-center mb-6">
         <v-avatar color="purple-lighten-5" rounded="lg" class="mr-3">
