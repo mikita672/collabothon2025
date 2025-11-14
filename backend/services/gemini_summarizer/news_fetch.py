@@ -3,6 +3,7 @@ import hashlib
 import requests
 from typing import List, Dict, Any, Iterable
 from services.gemini_summarizer.config import get_newsapi_key
+from services.gemini_summarizer.gemini_summarizer import summarize_text
 
 # Справочник тикеров
 TICKER_COMPANIES: Dict[str, str] = {
@@ -125,7 +126,12 @@ def fetch_financial_news(
 
             timestamp = art.get("publishedAt") or end.isoformat() + "Z"
             main_ticker = related[0]
-
+            try:
+                summary_val = summarize_text(
+                    article_text=combined,
+                    )
+            except Exception:
+                summary_val = desc or title            
             item = {
                 "id": _hash_id(url or title + timestamp),
                 "title": title,
@@ -133,7 +139,7 @@ def fetch_financial_news(
                 "company": TICKER_COMPANIES[main_ticker],
                 "sourceUrl": url,
                 "timestamp": timestamp,
-                "summary": desc or title,          # можно позже заменить на LLM summary
+                "summary": summary_val,
                 "priceImpact": _price_impact_hint(title),
                 "educationalNote": _educational_note(title),
                 "relatedTickers": related,
