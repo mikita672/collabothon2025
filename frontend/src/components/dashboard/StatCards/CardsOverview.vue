@@ -10,10 +10,14 @@
       <CurrentValueWidget />
     </v-col>
   </v-row>
+  <v-row class="ga-0 mx-0" style="margin-left: 0; margin-right: 0">
+    <TotalGrowthWidget />
+  </v-row>
 </template>
 
 <script setup lang="ts">
 import TotalInvestedWidget from './TotalInvestedWidget.vue'
 import CurrentValueWidget from './CurrentValueWidget.vue'
 import TotalAllocatedWidget from './CurrentBalanceWidget.vue'
+import TotalGrowthWidget from './TotalGrowthWidget.vue'
 </script>
