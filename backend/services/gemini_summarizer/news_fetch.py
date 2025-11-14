@@ -69,24 +69,18 @@ def fetch_financial_news(
     max_per_ticker: int = 30,
     dedup: bool = True,
 ) -> List[Dict[str, Any]]:
-    """
-    Возвращает нормализованные новости за последние 'days' дней для заданных тикеров.
-    """
     api_key = get_newsapi_key()
-    end = dt.datetime.utcnow()
+    end = dt.datetime.now(dt.timezone.utc)
     start = end - dt.timedelta(days=days)
     results: List[Dict[str, Any]] = []
     seen_urls = set()
 
-    # Очистка тикеров
     norm_tickers = [t.upper() for t in tickers if t.upper() in TICKER_COMPANIES]
 
     base_url = "https://newsapi.org/v2/everything"
     headers = {"X-Api-Key": api_key}
 
-    for group in _chunks(norm_tickers, 5):  # объединяем до 5 компаний в один запрос OR
-        # Формируем запрос (company OR ticker) для каждой
-        # Пример: ("Microsoft" OR MSFT) OR ("Apple" OR AAPL)
+    for group in _chunks(norm_tickers, 5):
         query_parts = []
         for tk in group:
             comp = TICKER_COMPANIES[tk]
