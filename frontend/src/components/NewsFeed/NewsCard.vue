@@ -1,3 +1,32 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { NewsItem } from '@/types/news';
+import { getSentimentIcon, getSentimentColor, getSentimentBadgeClass } from '@/utils/sentiment';
+import { formatTimeAgo } from '@/utils/formatters';
+
+const sentimentIcon = computed(() => getSentimentIcon(props.news.sentiment));
+const sentimentColor = computed(() => getSentimentColor(props.news.sentiment));
+const sentimentBadgeClass = computed(() => getSentimentBadgeClass(props.news.sentiment));
+const formattedTime = computed(() => formatTimeAgo(props.news.timestamp));
+const priceImpactClass = computed(() => {
+  return props.news.priceImpact > 0 ? 'price-positive' : 'price-negative';
+});
+
+interface Props {
+  news: NewsItem;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  click: [news: NewsItem];
+}>();
+
+const handleClick = () => {
+  emit('click', props.news);
+};
+</script>
+
 <template>
   <v-card 
     class="news-card pa-4" 
@@ -61,36 +90,6 @@
     </div>
   </v-card>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue';
-import type { NewsItem } from '@/types/news';
-import { getSentimentIcon, getSentimentColor, getSentimentBadgeClass } from '@/utils/sentiment';
-import { formatTimeAgo } from '@/utils/formatters';
-
-interface Props {
-  news: NewsItem;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{
-  click: [news: NewsItem];
-}>();
-
-const sentimentIcon = computed(() => getSentimentIcon(props.news.sentiment));
-const sentimentColor = computed(() => getSentimentColor(props.news.sentiment));
-const sentimentBadgeClass = computed(() => getSentimentBadgeClass(props.news.sentiment));
-
-const priceImpactClass = computed(() => {
-  return props.news.priceImpact > 0 ? 'price-positive' : 'price-negative';
-});
-
-const formattedTime = computed(() => formatTimeAgo(props.news.timestamp));
-
-const handleClick = () => {
-  emit('click', props.news);
-};
-</script>
 
 <style scoped>
 .news-card {

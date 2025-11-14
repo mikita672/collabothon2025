@@ -4,17 +4,15 @@ import NewsDescription from "./NewsFeed/NewsDescription.vue"
 import { useNewsData } from '@/composables/useNewsData'
 import { useNewsSelection } from '@/composables/useNewsSelection'
 
-// Data
 const { newsItems, stockData } = useNewsData()
-// Selection management
 const { selectedNews, selectNews, clearSelection } = useNewsSelection()
-
 </script>
 
 <template>
   <main class="main-container">
     <div class="content-wrapper">
         <div class="header-section">
+            <h class="text-black-darken-1 text-bold text-2xl">Portfolio News Feed</h>
             <p class="text-grey-darken-1">Latest news affecting your AI portfolio companies</p>
         </div>
 
@@ -29,7 +27,7 @@ const { selectedNews, selectNews, clearSelection } = useNewsSelection()
           </div>
 
           <div class="empty-section">
-            <!-- Empty space -->
+            <!-- Empty space for stats -->
           </div>
         </div>
 

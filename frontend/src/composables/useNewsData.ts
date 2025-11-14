@@ -63,6 +63,18 @@ export function useNewsData() {
       sourceUrl: 'https://example.com/google-antitrust',
       educationalNote: 'Regulatory challenges can create uncertainty and impact company valuations, especially for tech giants.'
     },
+    {
+      id: '6',
+      title: 'Google faces antitrust challenges',
+      ticker: 'GOOGL',
+      sentiment: 'negative',
+      priceImpact: -2.1,
+      timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+      company: 'Alphabet Inc.',
+      summary: 'Regulatory scrutiny intensifies as DOJ pursues antitrust case against Google.',
+      sourceUrl: 'https://example.com/google-antitrust',
+      educationalNote: 'Regulatory challenges can create uncertainty and impact company valuations, especially for tech giants.'
+    },
   ]);
 
   const stockData = ref<StockDataPoint[]>([

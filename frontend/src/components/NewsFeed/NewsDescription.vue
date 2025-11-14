@@ -1,3 +1,46 @@
+<script setup lang="ts">
+import { computed, watch, onUnmounted } from 'vue';
+import type { NewsItem, StockDataPoint } from '@/types/news';
+import { useChartDrawing } from '@/composables/useChartDrawing';
+
+let chartInstance: any = null;
+const { chartCanvas, drawChart } = useChartDrawing();
+
+const isPositive = computed(() => props.news?.sentiment === 'positive');
+
+interface Props {
+  news: NewsItem | null;
+  stockData: StockDataPoint[];
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<{
+  close: [];
+}>();
+
+const handleClose = () => {
+  emit('close');
+};
+
+const openSource = () => {
+  if (props.news?.sourceUrl) {
+    window.open(props.news.sourceUrl, '_blank');
+  }
+};
+
+watch(() => props.news, (newNews) => {
+  if (newNews && chartCanvas.value && props.stockData.length > 0) {
+    drawChart(chartCanvas.value, props.stockData, isPositive.value);
+  }
+}, { immediate: true });
+
+onUnmounted(() => {
+  if (chartInstance) {
+    chartInstance = null;
+  }
+});
+</script>
+
 <template>
   <v-dialog 
     :model-value="!!news" 
@@ -6,7 +49,6 @@
     scrollable
   >
     <v-card v-if="news" class="dialog-card">
-      <!-- Header -->
       <v-card-title class="px-0 pt-0 pb-0">
         <div class="dialog-header">
           <h2 class="text-h6 font-weight-bold">{{ news.title }}</h2>
@@ -58,7 +100,7 @@
             </v-btn>
           </div>
 
-          <!-- Stock Chart -->
+          <!-- Chart -->
           <v-card variant="flat" class="pa-3 mb-4 chart-card">
             <h3 class="text-body-1 font-weight-bold mb-3">
               {{ news.company }} Stock Price (30 Days)
@@ -88,7 +130,6 @@
             </div>
           </v-card>
 
-          <!-- Close Button -->
           <div class="d-flex justify-end mt-4">
             <v-btn 
               variant="outlined"
@@ -103,49 +144,6 @@
     </v-card>
   </v-dialog>
 </template>
-
-<script setup lang="ts">
-import { computed, watch, onUnmounted } from 'vue';
-import type { NewsItem, StockDataPoint } from '@/types/news';
-import { useChartDrawing } from '@/composables/useChartDrawing';
-
-interface Props {
-  news: NewsItem | null;
-  stockData: StockDataPoint[];
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{
-  close: [];
-}>();
-
-const { chartCanvas, drawChart } = useChartDrawing();
-let chartInstance: any = null;
-
-const isPositive = computed(() => props.news?.sentiment === 'positive');
-
-const handleClose = () => {
-  emit('close');
-};
-
-const openSource = () => {
-  if (props.news?.sourceUrl) {
-    window.open(props.news.sourceUrl, '_blank');
-  }
-};
-
-watch(() => props.news, (newNews) => {
-  if (newNews && chartCanvas.value && props.stockData.length > 0) {
-    drawChart(chartCanvas.value, props.stockData, isPositive.value);
-  }
-}, { immediate: true });
-
-onUnmounted(() => {
-  if (chartInstance) {
-    chartInstance = null;
-  }
-});
-</script>
 
 <style scoped>
 .dialog-card {
