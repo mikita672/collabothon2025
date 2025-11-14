@@ -1,49 +1,54 @@
 <template>
   <v-app-bar
     :elevation="0"
-    color="#0A3D2E"
-    height="64"
+    color="#002e3d"
+    height="70"
     class="header-bar"
   >
-    <v-container class="d-flex align-center px-4" fluid style="max-width: 100%;">
-      <!-- Commerzbank Logo -->
-      <div class="d-flex align-center">
-        <div class="commerzbank-logo">
-          <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="40" height="40" rx="2" fill="#FFCC00"/>
-            <path d="M10 10L30 30M30 10L10 30" stroke="#003D5C" stroke-width="3" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="brand-text ml-3">
-          <h1 class="commerzbank-title">COMMERZBANK</h1>
-        </div>
+    <v-container class="d-flex align-center px-6" fluid style="max-width: 1600px;">
+      <!-- Logo & Brand -->
+      <div class="d-flex align-center logo-section">
+        <img src="../assets/logo.png" alt="Logo" class="header-logo" />
       </div>
 
       <v-spacer></v-spacer>
 
-      <!-- Right Side: User Menu -->
-      <div class="d-flex align-center" style="gap: 16px;">
-        <!-- User Menu -->
-        <v-menu offset-y>
+      <!-- Navigation & User Section -->
+      <div class="d-flex align-center nav-section">
+
+        <!-- User Profile Menu -->
+        <v-menu offset-y min-width="280" location="bottom end">
           <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              variant="text"
-              class="icon-button"
-              size="small"
-            >
-              <v-icon color="white" size="20">mdi-account</v-icon>
-            </v-btn>
+            <div v-bind="props" class="user-profile">
+              <div class="user-avatar">
+                <v-icon color="white" size="22">mdi-account</v-icon>
+              </div>
+              <div class="user-details d-none d-sm-flex">
+                <span class="user-name">John Doe</span>
+              </div>
+              <v-icon color="#ffffff" size="18" class="ml-2">mdi-chevron-down</v-icon>
+            </div>
           </template>
-          <v-list class="user-menu" density="compact">
-            <v-list-item @click="handleLogout">
-              <template v-slot:prepend>
-                <v-icon size="18" color="#0A3D2E">mdi-logout</v-icon>
-              </template>
-              <v-list-item-title class="logout-text">Sign Out</v-list-item-title>
-            </v-list-item>
-          </v-list>
+          
+          <v-card class="profile-menu" elevation="8">
+            <v-list class="py-2">
+              <v-list-item @click="handleSettings" class="menu-item">
+                <template v-slot:prepend>
+                  <v-icon size="20" color="#475569">mdi-cog</v-icon>
+                </template>
+                <v-list-item-title class="menu-item-title">Settings</v-list-item-title>
+              </v-list-item>
+              
+              <v-divider class="my-1"></v-divider>
+              
+              <v-list-item @click="handleLogout" class="menu-item logout-item">
+                <template v-slot:prepend>
+                  <v-icon size="20" color="#dc2626">mdi-logout</v-icon>
+                </template>
+                <v-list-item-title class="logout-title">Sign Out</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card>
         </v-menu>
       </div>
     </v-container>
@@ -51,8 +56,6 @@
 </template>
 
 <script setup lang="ts">
-import { useHeaderMenu } from '@/composables/useHeaderMenu';
-
 interface Props {
   isLoggedIn?: boolean;
 }
@@ -69,84 +72,195 @@ const handleLogout = () => {
   emit('logout');
 };
 
-const { menuItems } = useHeaderMenu(handleLogout);
+const handleProfile = () => {
+  console.log('Navigate to profile');
+};
+
+const handleSettings = () => {
+  console.log('Navigate to settings');
+};
+
+const handlePortfolio = () => {
+  console.log('Navigate to portfolio');
+};
 </script>
 
 <style scoped>
 .header-bar {
-  border-bottom: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: #002e3d !important;
 }
 
-.commerzbank-logo {
+/* Logo Section */
+.logo-section {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logo-section:hover {
+  transform: translateY(-1px);
+}
+
+.header-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-circle {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(10, 61, 46, 0.15);
+  transition: all 0.3s ease;
 }
 
-.brand-text {
-  line-height: 1;
+.logo-circle:hover {
+  box-shadow: 0 6px 16px rgba(10, 61, 46, 0.2);
 }
 
-.commerzbank-title {
-  font-size: 1.1rem;
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #0f172a;
   margin: 0;
-  letter-spacing: 0.5px;
-  font-family: 'Roboto', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-.icon-button {
-  min-width: auto !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 50% !important;
-  transition: background 0.2s ease !important;
+.brand-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  margin: 2px 0 0 0;
+  letter-spacing: 0.02em;
 }
 
-.icon-button:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
+/* Navigation Section */
+.nav-section {
+  gap: 24px;
 }
 
-.login-button {
-  text-transform: none !important;
-  color: #FFFFFF !important;
-  padding: 6px 12px !important;
-  min-width: auto !important;
-  height: 40px !important;
-  border-radius: 20px !important;
-  transition: background 0.2s ease !important;
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px 8px 8px;
+  border-radius: 12px;
+  background: #002e3d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  gap: 12px;
 }
 
-.login-button:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
+.user-profile:hover {
+  background: #004a5f;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
-.login-text {
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0A3D2E 0%, #0d5240 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(10, 61, 46, 0.2);
+}
+
+.user-details {
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.user-name {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #FFFFFF;
+  font-weight: 600;
+  color: #ffffff;
 }
 
-.user-menu {
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 180px;
-}
-
-.logout-text {
-  color: #0A3D2E;
+.user-email {
+  font-size: 0.75rem;
+  color: #64748b;
   font-weight: 500;
 }
 
+.user-status {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Profile Menu */
+.profile-menu {
+  border-radius: 12px !important;
+  overflow: hidden;
+  margin-top: 8px;
+  min-width: 180px !important;
+}
+
+.menu-item {
+  cursor: pointer;
+  transition: background 0.2s ease;
+  min-height: 44px !important;
+}
+
+.menu-item:hover {
+  background: #f8fafc !important;
+}
+
+.menu-item-title {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #0f172a !important;
+}
+
+.logout-item:hover {
+  background: #fef2f2 !important;
+}
+
+.logout-title {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #dc2626 !important;
+}
+
+/* Responsive */
 @media (max-width: 960px) {
-  .commerzbank-title {
-    font-size: 0.95rem;
+  .brand-name {
+    font-size: 1.1rem;
   }
   
-  .login-text {
-    display: none;
+  .brand-subtitle {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-circle svg {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .brand-info {
+    margin-left: 12px !important;
+  }
+  
+  .nav-section {
+    gap: 12px;
+  }
+  
+  .user-profile {
+    padding: 6px;
   }
 }
 </style>
