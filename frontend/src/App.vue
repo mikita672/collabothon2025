@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Login from './components/Login.vue';
+import MainView from './components/MainView.vue'
 
 const isLoggedIn = ref(false);
 
@@ -16,10 +17,7 @@ const handleLogin = () => {
       <Login v-if="!isLoggedIn" @login="handleLogin" />
       
       <div v-else>
-        <h1>You did it!</h1>
-        <v-card class="ma-4 pa-4" max-width="300">
-          Welcome to the Dashboard!
-        </v-card>
+        <MainView/>
       </div>
     </v-main>
   </v-app>
