@@ -1,5 +1,5 @@
 <template>
-  <v-row class="d-flex align-center justify-center ga-4">
+  <v-row class="d-flex align-center justify-center ga-6">
     <v-col cols="auto">
       <TotalAllocatedWidget />
     </v-col>
