@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from data import router as data_router
-from gemini import router as gemini_router
+from routers.data import router as data_router
+from routers.gemini import router as gemini_router
 
 app = FastAPI(title="Backend")
 
