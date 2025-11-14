@@ -58,8 +58,9 @@
                     :loading="authStore.loading"
                     :disabled="authStore.loading"
                     size="small"
+                    color="#002e3d"
                     block
-                    class="gradient-button text-none"
+                    class="text-none"
                     height="40"
                   >
                     <v-icon size="18" class="mr-1">mdi-login</v-icon>
@@ -160,7 +161,7 @@
                   Continue with Google
                 </v-btn>
 
-                <div class="text-center mt-3">
+                <div class="text-center mt-5 mb-4">
                   <p class="text-body-2 text-grey-darken-1">
                     Don't have an account?
                     <a href="#" class="text-primary font-weight-medium" @click.prevent="emit('go-to-register')">
@@ -170,14 +171,13 @@
                 </div>
               </div>
 
-              <!-- Security notice -->
               <v-alert
                 type="info"
                 variant="tonal"
                 density="compact"
-                class="mt-2 w-100 security-alert"
+                class="w-100"
               >
-                <div class="text-caption" style="font-size: 0.7rem; line-height: 1.3;">
+                <div class="text-caption" style="font-size: 1 rem; line-height: 1.3;">
                   Session encrypted, expires in 5 min
                 </div>
               </v-alert>
