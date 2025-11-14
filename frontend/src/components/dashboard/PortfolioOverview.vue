@@ -53,6 +53,15 @@ const holdings = ref<Holding[]>([
     currentPrice: 185.3,
     totalValue: 185300,
   },
+  {
+    id: '4',
+    name: 'Azazazazon',
+    ticker: 'AMZN',
+    shares: 1000,
+    avgPrice: 175.5,
+    currentPrice: 185.3,
+    totalValue: 185300,
+  },
 ])
 
 const handleHoldingClick = (holding: Holding) => {
