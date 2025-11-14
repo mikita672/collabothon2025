@@ -1,12 +1,12 @@
 <template>
-  <v-row class="d-flex align-center justify-center">
-    <v-col cols="auto">
+  <v-row class="ga-0 mx-0" style="margin-left: 0; margin-right: 0">
+    <v-col class="pa-1">
       <TotalAllocatedWidget />
     </v-col>
-    <v-col cols="auto">
+    <v-col class="pa-1">
       <TotalInvestedWidget />
     </v-col>
-    <v-col cols="auto">
+    <v-col class="pa-1">
       <CurrentValueWidget />
     </v-col>
   </v-row>
@@ -15,5 +15,5 @@
 <script setup lang="ts">
 import TotalInvestedWidget from './TotalInvestedWidget.vue'
 import CurrentValueWidget from './CurrentValueWidget.vue'
-import TotalAllocatedWidget from './TotalAllocatedWidget.vue'
+import TotalAllocatedWidget from './CurrentBalanceWidget.vue'
 </script>

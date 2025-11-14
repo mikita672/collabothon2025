@@ -61,16 +61,14 @@ ChartJS.register(
   Filler,
 )
 
-// --- Chart Data Changes (Adjusted for no fill) ---
 const chartData = ref({
   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
   datasets: [
     {
       label: 'Stock Prices',
-      // No backgroundColor needed for fill now
-      borderColor: '#42A5F5', // Keep the strong blue line
+      borderColor: '#42A5F5',
       data: [40, 39, 10, 40, 39, 80, 40],
-      fill: false, // <-- Set to false to remove the fill
+      fill: false,
       tension: 0.4,
       pointRadius: 0,
       pointHoverRadius: 6,
@@ -79,7 +77,6 @@ const chartData = ref({
   ],
 })
 
-// --- Chart Options (No changes needed here for fill) ---
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,

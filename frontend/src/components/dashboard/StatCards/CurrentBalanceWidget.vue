@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <p class="font-weight-medium text-center" style="font-family: Afacad">Total Invested</p>
+  <div style="width: 15vw">
+    <p class="font-weight-medium text-center" style="font-family: Afacad">Current Balance</p>
     <v-card rounded="lg">
       <v-card-text>
         <div
           class="text-h5 font-weight-bold text-center"
           style="font-family: Afacad; color: #002e3c"
         >
-          €4421.85
+          €421.85
         </div>
       </v-card-text>
     </v-card>
