@@ -1,11 +1,15 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <v-app>
+    <v-main>
+      <h1>You did it!</h1>
+
+      <v-card class="ma-4 pa-4" max-width="300">
+        Bebra
+      </v-card>
+    </v-main>
+  </v-app>
 </template>
 
 <style scoped></style>
