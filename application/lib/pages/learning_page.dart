@@ -1,3 +1,5 @@
+import 'package:application/widgets/common/custom_card.dart';
+import 'package:application/widgets/learning/learning_materials_list.dart';
 import 'package:flutter/material.dart';
 
 class LearningPage extends StatelessWidget {
@@ -5,6 +7,11 @@ class LearningPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("Learning Page", style: TextStyle(fontSize: 22)));
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        child: CustomCard(child: LearningMaterialsList()),
+      ),
+    );
   }
 }
