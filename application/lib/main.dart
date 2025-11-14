@@ -9,16 +9,25 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:firebase_core/firebase_core.dart';
  import 'firebase_options.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
-  runApp(const MyApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Get current user
+  final user = FirebaseAuth.instance.currentUser;
+
+  runApp(MyApp(
+    initialUser: user,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final User? initialUser;
+  const MyApp({super.key, this.initialUser});
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +35,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 220, 226, 252)),
-        fontFamily: 'Afacad'
+        fontFamily: 'Afacad',
       ),
-      home: AuthPage(),
+      home: initialUser != null ? const NavigationView() : AuthPage(),
     );
   }
 }
+
 
 class NavigationView extends StatefulWidget {
   const NavigationView({super.key});
