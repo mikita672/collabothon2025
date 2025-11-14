@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.data import router as data_router
+from routers.gemini import router as gemini_router
 
 app = FastAPI(title="Backend")
 
@@ -17,3 +18,4 @@ def root():
     return {"status": "ok", "docs": "/docs"}
 # Mount routers
 app.include_router(data_router)
+app.include_router(gemini_router)
