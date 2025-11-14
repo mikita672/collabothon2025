@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 38, 90, 9)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 220, 226, 252)),
         fontFamily: 'Afacad'
       ),
       home: const NavigationView(),
@@ -39,18 +39,19 @@ class _NavigationViewState extends State<NavigationView> {
 
   final List<Widget> _pages = const [
     DashboardPage(),
-    LearningPage(),
     NewsPage(),
+    LearningPage(),
     QrScannerPage(),
   ];
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
+      body: SafeArea(
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
       ),
        bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
@@ -76,12 +77,12 @@ class _NavigationViewState extends State<NavigationView> {
               label: 'Dashboard',
             ),
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.book),
-              label: "Learning",
-            ),
-            BottomNavigationBarItem(
               icon: Icon(LucideIcons.newspaper),
               label: "News",
+            ),   
+            BottomNavigationBarItem(
+              icon: Icon(LucideIcons.book),
+              label: "Learning",
             ),
             BottomNavigationBarItem(
               icon: Icon(LucideIcons.qrCode),
