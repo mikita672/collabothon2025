@@ -4,6 +4,7 @@ import requests
 from typing import List, Dict, Any, Iterable
 from services.gemini_summarizer.config import get_newsapi_key
 from services.gemini_summarizer.gemini_summarizer import summarize_text
+from services.gemini_summarizer.gemini_predict import news_prediction
 
 # Справочник тикеров
 TICKER_COMPANIES: Dict[str, str] = {
@@ -43,19 +44,6 @@ TICKER_COMPANIES: Dict[str, str] = {
 POS_WORDS = {"growth", "beats", "surge", "record", "upgrade", "positive"}
 NEG_WORDS = {"falls", "drop", "plunge", "lawsuit", "downgrade", "negative", "loss"}
 
-
-def _price_impact_hint(title: str) -> float:
-    # Плейсхолдер: ключевые слова дают приблизительную “силу” (0–1)
-    kw = title.lower()
-    impact = 0.0
-    if "earnings" in kw or "results" in kw: impact += 0.4
-    if "guidance" in kw: impact += 0.3
-    if any(k in kw for k in ["acquisition", "merger"]): impact += 0.5
-    return min(1.0, impact)
-
-def _educational_note(title: str) -> str:
-    return "No info(placeholder)"
-
 def _hash_id(source_url: str) -> str:
     return hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:24]
 
@@ -69,6 +57,7 @@ def fetch_financial_news(
     language: str = "en",
     max_per_ticker: int = 30,
     dedup: bool = True,
+    use_model: int = 0,
 ) -> List[Dict[str, Any]]:
     api_key = get_newsapi_key()
     end = dt.datetime.now(dt.timezone.utc)
@@ -126,12 +115,26 @@ def fetch_financial_news(
 
             timestamp = art.get("publishedAt") or end.isoformat() + "Z"
             main_ticker = related[0]
-            try:
-                summary_val = summarize_text(
-                    article_text=combined,
-                    )
-            except Exception:
-                summary_val = desc or title            
+            if use_model > 0:
+                try:
+                    pred = news_prediction(combined)
+                    price_expl = pred.get("priceImpactExplanation", "")
+                    price_score = float(pred.get("priceImpactScore", 0.0))
+                except Exception:
+                    price_expl = "No data"
+                    price_score = float(0.0)
+
+                try:
+                    summary_val = summarize_text(
+                        article_text=combined,
+                        )
+                except Exception:
+                    summary_val = desc or title            
+                use_model = use_model - 1
+            else:
+                price_expl = "No data"
+                price_score = float(0.0)  
+                summary_val = desc or title
             item = {
                 "id": _hash_id(url or title + timestamp),
                 "title": title,
@@ -140,8 +143,8 @@ def fetch_financial_news(
                 "sourceUrl": url,
                 "timestamp": timestamp,
                 "summary": summary_val,
-                "priceImpact": _price_impact_hint(title),
-                "educationalNote": _educational_note(title),
+                "priceImpact": price_score,
+                "educationalNote": price_expl,
                 "relatedTickers": related,
                 "rawSource": art.get("source", {}).get("name"),
             }

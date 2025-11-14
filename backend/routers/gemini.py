@@ -76,7 +76,7 @@ def _estimate_price_impact(article_text: str) -> float:
     )
 
     response = _gemini_client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt,
     )
     raw = getattr(response, "text", "").strip()
