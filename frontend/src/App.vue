@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Login from './components/Login.vue'
-import Dashboard from './components/dashboard/Dashboard.vue'
+import Dashboard from './components/dashboard/StatCards/Dashboard.vue'
 
 const isLoggedIn = ref(false)
 

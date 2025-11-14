@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import CardsOverview from '@/components/dashboard/CardsOverview.vue'
+import CardsOverview from '@/components/dashboard/StatCards/CardsOverview.vue'
 </script>

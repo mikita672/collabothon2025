@@ -1,7 +1,7 @@
 <template>
   <v-row class="d-flex align-center justify-center ga-4">
     <v-col cols="auto">
-      <SymarizeWidget />
+      <TotalAllocatedWidget />
     </v-col>
     <v-col cols="auto">
       <TotalInvestedWidget />
@@ -16,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import SymarizeWidget from './TotalAllocatedWidget.vue'
 import TotalInvestedWidget from './TotalInvestedWidget.vue'
 import CurrentValueWidget from './CurrentValueWidget.vue'
 import GrowthWidget from './GrowthWidget.vue'
+import TotalAllocatedWidget from './TotalAllocatedWidget.vue'
 </script>
