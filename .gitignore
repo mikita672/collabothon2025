@@ -1,4 +1,6 @@
 frontend/.vscode
 /backend/.venv
+/backend/.env
+/backend/__pycache__
 frontend/node_modules
 frontend/package-lock.json

@@ -1,3 +1,6 @@
 numpy
 fastapi
 uvicorn[standard]
+google-genai
+requests
+python-dotenv
