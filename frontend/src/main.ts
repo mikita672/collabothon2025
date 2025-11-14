@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-import './services/firebase' // Initialize Firebase
+import './services/firebase'
 
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'

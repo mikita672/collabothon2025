@@ -7,7 +7,6 @@
             <div class="d-flex flex-column align-center">
               <h1 class="text-h6 text-center mb-1">Login | QR</h1>
 
-              <!-- QR Code -->
               <v-card class="qr-card mb-3 pa-2" variant="outlined" :border="true">
                 <canvas ref="canvasRef" class="d-block mx-auto"></canvas>
               </v-card>
@@ -128,7 +127,7 @@
                   <v-divider></v-divider>
                 </div>
 
-                                <!-- Toggle Email Login -->
+                <!-- Toggle Email Login -->
                 <v-btn
                   @click="showEmailLogin = !showEmailLogin"
                   variant="outlined"
