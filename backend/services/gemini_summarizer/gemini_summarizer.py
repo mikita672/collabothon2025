@@ -1,29 +1,49 @@
 # gemini_summarizer.py
-from .config import get_gemini_client
-
+from services.gemini_summarizer.config import get_gemini_client
 
 _client = get_gemini_client()
 
 
-def summarize_text(article_text: str, language: str = "en") -> str:
+def summarize_text(
+    article_text: str,
+    language: str = "en",
+    summary_size: str = "medium",
+) -> str:
     """
-    Sends the news article text to the Gemini model and returns a brief summary.
+    Отправляет текст новости в модель Gemini и возвращает краткое резюме.
 
-    :param article_text: input text of the article to summarize
-    :param language: ('ru' or 'en' ect.)
+    :param article_text: исходный текст новости
+    :param language: язык ответа ('en', 'ru' и т.д.), по умолчанию 'en'
+    :param summary_size: 'short' | 'medium' | 'long' – желаемая длина резюме
     """
-    if not article_text.strip():
+
+    if not article_text or not article_text.strip():
         return "No text provided for summarization."
 
-    if language == "en":
+    # Нормализуем размер резюме
+    size = (summary_size or "medium").lower()
+    if size not in {"short", "medium", "long"}:
+        size = "medium"
+
+    # Описание длины в человеко-понятном виде
+    if size == "short":
+        length_hint = "1–2 sentences"
+    elif size == "long":
+        length_hint = "4–6 sentences"
+    else:  # medium
+        length_hint = "2–3 sentences"
+
+    if language == "ru":
         prompt = (
-            "Create a brief summary of the following news article"
-            "(2-3 sentences, neutral tone, no personal judgment):\n\n"
+            f"Сделай краткое резюме следующей новости на русском языке. "
+            f"Используй {length_hint}, нейтральный тон, без личных оценок:\n\n"
             f"{article_text}"
         )
     else:
+        # По умолчанию – английский
         prompt = (
-            "Summarize the following news article in 2–3 sentences, neutral tone:\n\n"
+            f"Write a concise summary of the following news article in English. "
+            f"Use {length_hint}, neutral tone, and avoid personal opinions:\n\n"
             f"{article_text}"
         )
 
@@ -35,4 +55,5 @@ def summarize_text(article_text: str, language: str = "en") -> str:
     summary = getattr(response, "text", "").strip()
     if not summary:
         summary = "Model did not return a summary."
+
     return summary
