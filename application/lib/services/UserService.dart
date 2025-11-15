@@ -43,7 +43,7 @@ class UserService extends ChangeNotifier {
               : 0.0;
 
       riskLevel = data['risk_level']; 
-      stocks = Map<String, dynamic>.from(data['stocks'] ?? {});
+
 
       shouldSelectRiskLevel = riskLevel == null;
 
