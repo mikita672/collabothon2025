@@ -48,8 +48,6 @@ const ownedQuantity = computed(() => {
   return portfolioStore.getStockQuantity(props.news.ticker);
 });
 
-const canSell = computed(() => ownedQuantity.value > 0);
-
 const handleClose = () => {
   emit('close');
 };
@@ -71,7 +69,8 @@ const handleSell = () => {
 };
 
 const handleTradeSuccess = () => {
-  successMessage.value = `Stock purchased successfully!`;
+  const actionText = tradeAction.value === 'buy' ? 'purchased' : 'sold';
+  successMessage.value = `Stock ${actionText} successfully!`;
   showSuccessSnackbar.value = true;
 };
 </script>
@@ -146,17 +145,40 @@ const handleTradeSuccess = () => {
             </div>
             
             <!-- Trade Actions -->
-            <div class="mt-3">
+            <div class="mt-3 d-flex" style="gap: 8px;">
               <v-btn 
                 color="success" 
                 variant="flat"
                 size="small"
-                block
+                style="flex: 1;"
                 @click="handleBuy"
               >
                 <v-icon start size="18">mdi-cart-plus</v-icon>
                 Buy Stock
               </v-btn>
+              
+              <v-btn 
+                color="error" 
+                variant="flat"
+                size="small"
+                style="flex: 1;"
+                :disabled="ownedQuantity === 0"
+                @click="handleSell"
+              >
+                <v-icon start size="18">mdi-cart-minus</v-icon>
+                Sell Stock
+              </v-btn>
+            </div>
+            
+            <div v-if="ownedQuantity === 0" class="mt-2">
+              <v-alert 
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="text-caption"
+              >
+                You don't own any shares to sell
+              </v-alert>
             </div>
           </v-card>
 
@@ -196,7 +218,7 @@ const handleTradeSuccess = () => {
 
   <!-- Trade Dialog (outside to avoid nesting issues) -->
   <TradeDialog
-    v-if="news"
+    v-if="news && showTradeDialog"
     :show="showTradeDialog"
     :action="tradeAction"
     :ticker="news.ticker"

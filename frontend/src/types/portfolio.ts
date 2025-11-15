@@ -29,3 +29,15 @@ export interface TradeAction {
   price: number
   total: number
 }
+
+export interface DailyPerformance {
+  date: string
+  open: number
+  close: number
+  change: number
+  changePercent: number
+}
+
+export interface PerformanceData {
+  [ticker: string]: DailyPerformance[]
+}

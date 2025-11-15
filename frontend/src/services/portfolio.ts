@@ -1,6 +1,6 @@
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
-import type { UserPortfolioData, PortfolioStats, Stock } from '@/types/portfolio'
+import type { UserPortfolioData, PortfolioStats, Stock, PerformanceData } from '@/types/portfolio'
 
 export class PortfolioService {
   static async createUserPortfolio(userId: string, email: string, name?: string): Promise<void> {
@@ -240,5 +240,35 @@ export class PortfolioService {
         callback(null)
       },
     )
+  }
+
+  static async updatePerformanceData(
+    userId: string,
+    performanceData: PerformanceData
+  ): Promise<void> {
+    try {
+      const performanceDocRef = doc(db, 'performance', userId)
+      await setDoc(performanceDocRef, performanceData, { merge: true })
+      console.log('Performance data updated successfully')
+    } catch (error) {
+      console.error('Error updating performance data:', error)
+      throw error
+    }
+  }
+
+  static async getPerformanceData(userId: string): Promise<PerformanceData | null> {
+    try {
+      const performanceDocRef = doc(db, 'performance', userId)
+      const performanceDoc = await getDoc(performanceDocRef)
+
+      if (performanceDoc.exists()) {
+        return performanceDoc.data() as PerformanceData
+      }
+
+      return null
+    } catch (error) {
+      console.error('Error fetching performance data:', error)
+      throw error
+    }
   }
 }
