@@ -39,10 +39,31 @@ TICKER_COMPANIES: Dict[str, str] = {
     "COIN": "Coinbase",
     "RIOT": "Riot Platforms",
 }
-
-# Простая эвристика сентимента (можно заменить LLM)
-POS_WORDS = {"growth", "beats", "surge", "record", "upgrade", "positive"}
-NEG_WORDS = {"falls", "drop", "plunge", "lawsuit", "downgrade", "negative", "loss"}
+SOURCE_WHITELIST = {
+    s.lower(): s for s in [
+        "Observer",
+        "Biztoc.com",
+        "CNA",
+        "Thefly.com",
+        "BGR",
+        "Gizmodo.com",
+        "Financial Post",
+        "Next Big Future",
+        "CNN",
+        "MIT Technology Review",
+        "GamesRadar+",
+        "Liliputing",
+        "Slashdot.org",
+        "The Straits Times",
+        "SiliconANGLE News",
+        "TechRadar",
+        "International Business Times",
+        "Fortune",
+        "Barchart.com",
+    ]
+}
+NON_FINANCE_EXCLUDE = [
+]
 
 def _hash_id(source_url: str) -> str:
     return hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:24]
@@ -50,6 +71,11 @@ def _hash_id(source_url: str) -> str:
 def _chunks(items: List[str], size: int) -> Iterable[List[str]]:
     for i in range(0, len(items), size):
         yield items[i:i+size]
+
+def _looks_financial(title: str, desc: str, content: str) -> bool:
+    text = f"{title} {desc} {content}".lower()
+    has_non_fin = any(k in text for k in (kw.lower() for kw in NON_FINANCE_EXCLUDE))
+    return not has_non_fin
 
 def fetch_financial_news(
     tickers: List[str],
@@ -100,6 +126,9 @@ def fetch_financial_news(
             title = art.get("title") or ""
             desc = art.get("description") or ""
             content = art.get("content") or ""
+
+            if not _looks_financial(title, desc, content):
+                continue            
             combined = f"{title}. {desc} {content}"
 
             # Определяем связанные тикеры по вхождению названий
@@ -113,6 +142,10 @@ def fetch_financial_news(
             if not related:
                 continue  # фильтруем нерелевантные
 
+            raw_source = art.get("source", {}).get("name") or ""
+            
+            if raw_source.lower() not in SOURCE_WHITELIST:
+                continue
             timestamp = art.get("publishedAt") or end.isoformat() + "Z"
             main_ticker = related[0]
             if use_model > 0:
