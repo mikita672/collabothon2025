@@ -51,7 +51,7 @@ const holdings = ref<Holding[]>([
   },
   {
     id: '4',
-    name: 'Azazazazon',
+    name: 'Amazon',
     ticker: 'AMZN',
     shares: 1000,
     avgPrice: 175.5,
