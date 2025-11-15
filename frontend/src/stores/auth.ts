@@ -70,6 +70,30 @@ export const useAuthStore = defineStore('auth', () => {
     return result
   }
 
+  // Login with Firebase token (для QR аутентификации)
+  const loginWithToken = async (token: string) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const result = await AuthService.loginWithToken(token)
+      
+      if (result.success) {
+        user.value = result.user!
+      } else {
+        error.value = result.error!
+      }
+      
+      loading.value = false
+      return result
+    } catch (err) {
+      error.value = 'Token authentication failed'
+      loading.value = false
+      return { success: false, error: 'Token authentication failed' }
+    }
+  }
+
+  // Logout user
   const logout = async () => {
     loading.value = true
     error.value = null
@@ -106,6 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     loginWithGoogle,
+    loginWithToken,
     logout,
     clearError,
     setUserName,
