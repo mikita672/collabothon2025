@@ -116,40 +116,52 @@ class LearningMaterialsList extends StatelessWidget {
 
   LearningMaterialsList({super.key});
 
-  @override
-Widget build(BuildContext context) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(
-          'Investment Learning Center',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+ @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Text(
+            'Investment Learning Center',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                ),
+          ),
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Text(
-          'Easy-to-understand guides about investments and macroeconomics',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Text(
+            'Easy-to-understand guides about investments and macroeconomics',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[700],
+                  fontSize: 18,
+                ),
+          ),
         ),
-      ),
-      const SizedBox(height: 8),
+        const SizedBox(height: 12),
 
-      ...List.generate(materials.length * 2 - 1, (index) {
-        if (index.isOdd) return Divider(height: 1, color: Colors.grey[300]);
-        final item = materials[index ~/ 2];
-        return LearningMaterialTile(
-          title: item['title'],
-          icon: item['icon'],
-          iconColor: item['color'],
-          sections: List<Map<String, String>>.from(item['sections']),
-        );
-      }),
-    ],
-  );
-}
+        ...List.generate(materials.length * 2 - 1, (index) {
+          if (index.isOdd) return Divider(height: 1, color: Colors.grey[300]);
+          final item = materials[index ~/ 2];
+          return LearningMaterialTile(
+            title: item['title'],
+            icon: item['icon'],
+            iconColor: item['color'],
+            sections: List<Map<String, String>>.from(item['sections']),
+            iconSize: 36,
+            titleFontSize: 20,
+            sectionTitleSize: 18,
+            sectionContentSize: 16,
+            verticalPadding: 12,
+            horizontalPadding: 20,
+          );
+        }),
+      ],
+    );
+  }
 
 }

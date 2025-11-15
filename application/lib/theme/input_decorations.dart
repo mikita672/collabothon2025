@@ -33,4 +33,42 @@ class InputDecorations {
           : null,
     );
   }
+
+ static InputDecoration greyRounded({
+  String? hintText,
+  double borderRadius = 15.0,
+  Color fillColor = const Color.fromARGB(255, 211, 210, 210), 
+  Widget? suffixIcon,
+}) {
+  return InputDecoration(
+    hintText: hintText,
+    hintStyle: const TextStyle(
+      fontSize: 24,
+      color: AppColors.primary,
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+    filled: true,
+    fillColor: fillColor,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(borderRadius),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(borderRadius),
+      borderSide: BorderSide.none, 
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(borderRadius),
+      borderSide: BorderSide.none, 
+    ),
+    suffixIcon: suffixIcon != null
+        ? Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: suffixIcon,
+          )
+        : null,
+  );
+}
+
+  
 }

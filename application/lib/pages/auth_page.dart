@@ -1,9 +1,11 @@
 import 'package:application/main.dart';
 import 'package:application/services/AuthService.dart';
+import 'package:application/services/UserService.dart';
 import 'package:application/theme/app_colors.dart';
 import 'package:application/theme/input_decorations.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -21,8 +23,9 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -55,11 +58,9 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                Column(children: [SizedBox(height: 16)]),
                 SizedBox(height: screenHeight * 0.03),
                 Column(
                   children: [
-                    SizedBox(height: screenHeight * 0.01),
                     TextField(
                       controller: _emailController,
                       style: TextStyle(fontSize: screenWidth * 0.05),
@@ -79,12 +80,10 @@ class _AuthPageState extends State<AuthPage> {
                             _obscurePassword
                                 ? LucideIcons.eyeOff
                                 : LucideIcons.eye,
-                            color: const Color.fromARGB(255, 0, 0, 0),
+                            color: Colors.black,
                           ),
                           onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
+                            setState(() => _obscurePassword = !_obscurePassword);
                           },
                         ),
                       ),
@@ -93,12 +92,12 @@ class _AuthPageState extends State<AuthPage> {
                       SizedBox(height: screenHeight * 0.01),
                       TextField(
                         controller: _nameController,
-                      style: TextStyle(fontSize: screenWidth * 0.05),                        
+                        style: TextStyle(fontSize: screenWidth * 0.05),
                         decoration: InputDecorations.roundedOutline(
                           hintText: 'Username',
                         ),
                       ),
-                    ],                    
+                    ],
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -108,18 +107,21 @@ class _AuthPageState extends State<AuthPage> {
                           final password = _passwordController.text.trim();
 
                           if (isLogin) {
-                            final user = await _authService.login(
-                              email,
-                              password,
-                            );
+                            // Login flow
+                            final user = await _authService.login(email, password);
                             if (!mounted) return;
+
                             if (user != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Login successful!'),
-                                ),
+                              final userService = Provider.of<UserService>(
+                                context,
+                                listen: false,
                               );
-                              // Navigate to your main app view
+                              userService.startListening();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Login successful!')),
+                              );
+
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -132,21 +134,22 @@ class _AuthPageState extends State<AuthPage> {
                               );
                             }
                           } else {
-                            // Sign up flow
+                            // Signup flow
                             final name = _nameController.text.trim();
-                            final user = await _authService.signUp(
-                              email,
-                              password,
-                              name,
-                            );
+                            final user = await _authService.signUp(email, password, name);
                             if (!mounted) return;
+
                             if (user != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Sign up successful!'),
-                                ),
+                              final userService = Provider.of<UserService>(
+                                context,
+                                listen: false,
                               );
-                              // Navigate to your main app view
+                              userService.startListening();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Sign up successful!')),
+                              );
+
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -155,9 +158,7 @@ class _AuthPageState extends State<AuthPage> {
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Sign up failed!'),
-                                ),
+                                const SnackBar(content: Text('Sign up failed!')),
                               );
                             }
                           }
@@ -173,7 +174,7 @@ class _AuthPageState extends State<AuthPage> {
                           isLogin ? 'Log In' : 'Sign Up',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.width * 0.05,
+                            fontSize: screenWidth * 0.05,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -186,11 +187,10 @@ class _AuthPageState extends State<AuthPage> {
                           children: isLogin
                               ? [
                                   TextSpan(
-                                    text: "Don`t have an account? ",
+                                    text: "Don’t have an account? ",
                                     style: TextStyle(
                                       fontSize: screenWidth * 0.04,
                                       color: Colors.black,
-                                      fontWeight: FontWeight.normal,
                                     ),
                                   ),
                                   TextSpan(
@@ -208,7 +208,6 @@ class _AuthPageState extends State<AuthPage> {
                                     style: TextStyle(
                                       fontSize: screenWidth * 0.04,
                                       color: Colors.black,
-                                      fontWeight: FontWeight.normal,
                                     ),
                                   ),
                                   TextSpan(
