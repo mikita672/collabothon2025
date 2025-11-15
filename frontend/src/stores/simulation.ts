@@ -3,11 +3,16 @@ import { ref, computed } from 'vue'
 import { SimulationService } from '@/services/simulation'
 import type { PortfolioSimulation, SimulationRequest } from '@/types/simulation'
 
+function formatTime(date: Date): string {
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
 export const useSimulationStore = defineStore('simulation', () => {
   const simulationData = ref<PortfolioSimulation | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
-
   const currentRequest = ref<SimulationRequest | null>(null)
   const isStreaming = ref(false)
   const isUpdating = ref(false)
@@ -30,10 +35,21 @@ export const useSimulationStore = defineStore('simulation', () => {
       }
     }
 
+    const startMinute = currentTotalSteps.value - chartWindowSize.value
+
+    const baseTime = new Date()
+    baseTime.setHours(9, 30, 0, 0)
+
+    const windowStartTime = new Date(baseTime.getTime() + startMinute * 60000)
+
     const labels = simulationData.value.portfolio_series.map((_, index) => {
-      if (index % 10 === 0) {
-        return `T${index}`
+      const currentTime = new Date(windowStartTime.getTime() + index * 60000)
+      const minutes = currentTime.getMinutes()
+
+      if (minutes === 0 || minutes === 30) {
+        return formatTime(currentTime)
       }
+
       return ''
     })
 
@@ -54,20 +70,8 @@ export const useSimulationStore = defineStore('simulation', () => {
     }
   })
 
-  const stopRealtimeUpdates = () => {
-    if (!timerId.value) {
-      return
-    }
-
-    console.log('Stopping real-time simulation updates.')
-    window.clearInterval(timerId.value)
-    timerId.value = null
-    isStreaming.value = false
-    isUpdating.value = false
-  }
-
   const fetchSimulation = async (
-    portfolioStart: number,
+    portfolioStartValue: number,
     customRequest?: Partial<SimulationRequest>,
   ) => {
     loading.value = true
@@ -76,8 +80,8 @@ export const useSimulationStore = defineStore('simulation', () => {
 
     try {
       const request = customRequest
-        ? { ...SimulationService.createDefaultRequest(portfolioStart), ...customRequest }
-        : SimulationService.createDefaultRequest(portfolioStart)
+        ? { ...SimulationService.createDefaultRequest(portfolioStartValue), ...customRequest }
+        : SimulationService.createDefaultRequest(portfolioStartValue)
 
       request.configs.forEach((config) => {
         if (config.seed === null) {
@@ -143,6 +147,7 @@ export const useSimulationStore = defineStore('simulation', () => {
           ...config,
           n_steps: newTotalSteps,
           useStartP0: false,
+          startP0: config.price,
           seed: config.seed,
         }
       })
@@ -199,12 +204,23 @@ export const useSimulationStore = defineStore('simulation', () => {
     }, 5000)
   }
 
+  const stopRealtimeUpdates = () => {
+    if (!timerId.value) {
+      return
+    }
+
+    console.log('Stopping real-time simulation updates.')
+    window.clearInterval(timerId.value)
+    timerId.value = null
+    isStreaming.value = false
+    isUpdating.value = false
+  }
+
   const clearSimulation = () => {
     stopRealtimeUpdates()
     simulationData.value = null
     currentRequest.value = null
     error.value = null
-    currentTotalSteps.value = chartWindowSize.value
   }
 
   return {
