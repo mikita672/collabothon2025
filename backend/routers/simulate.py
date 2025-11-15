@@ -1,8 +1,7 @@
 from typing import List, Literal, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from services.average_mu import compute_average, simulate_price_series, simulate_portfolio
-
+from services.average_mu import simulate_price_series, simulate_portfolio, set_last_price, get_last_price
 router = APIRouter(tags=["averages"])
 
 class PricesPayload(BaseModel):
@@ -26,13 +25,6 @@ class PortfolioPayload(BaseModel):
     count: int
     configs: List[PortfolioSimItem]
     shares: List[float]
-
-@router.post("/average")
-def average_endpoint(body: PricesPayload):
-    avg = compute_average(body.prices)
-    if avg is None:
-        raise HTTPException(status_code=400, detail="Empty prices")
-    return {"average": avg}
 
 @router.post("/simulate/{symbol}")
 def simulate_symbol(
@@ -63,6 +55,7 @@ def simulate_symbol(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    set_last_price(symbol.upper(), res["final_price"])
     return {
         "symbol": symbol.upper(),
         "final_price": res["final_price"],
@@ -80,6 +73,13 @@ def simulate_symbol(
             "trend": trend
         },
     }
+@router.get("/simulate/last/{symbol}")
+def get_last_symbol_price(symbol: str):
+    data = get_last_price(symbol)
+    if not data:
+        raise HTTPException(status_code=404, detail="No last price for symbol")
+    return data
+
 @router.post("/simulate_portfolio")
 def simulate_portfolio_endpoint(body: PortfolioPayload):
     if body.count != len(body.configs) or body.count != len(body.shares):

@@ -2,11 +2,19 @@ import numpy as np
 from typing import Sequence, Optional, Literal, Union, List, Dict, Any
 import math
 
-def compute_average(nums: Sequence[float]) -> Optional[float]:
-    if not nums:
-        return None
-    arr = np.asarray(nums, dtype=np.float64)
-    return float(arr.mean())
+_last_prices: Dict[str, float] = {} 
+
+def set_last_price(symbol: str, price: float) -> None:
+    _last_prices[symbol.upper()] = float(price)
+
+def get_last_price(symbol: str) -> Optional[float]:
+    return _last_prices.get(symbol.upper())
+
+def get_all_last_prices() -> Dict[str, float]:
+    return dict(_last_prices)
+
+def clear_last_prices() -> None:
+    _last_prices.clear()
 
 def simulate_price_series(
     P0: float,
