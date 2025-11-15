@@ -8,13 +8,21 @@
       style="height: 5vh"
     >
       <div class="text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c">
-        €4321.85
+        {{ formatCurrency(totalInvested) }}
       </div>
     </v-card>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+defineProps<{
+  totalInvested: number
+}>()
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(value)
+}
+</script>
 
 <style scoped>
 .outlined-card {

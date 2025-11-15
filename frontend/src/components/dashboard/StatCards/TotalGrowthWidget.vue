@@ -11,20 +11,33 @@
         class="text-h5 font-weight-bold text-center"
         style="font-family: Afacad; color: #002e3c"
       >
-        €4321.85
+        {{ formatCurrency(totalGrowth) }}
       </v-card-text>
       <v-divider vertical class="my-2 mx-10" style="width: 100%"></v-divider>
       <div class="text-right mr-10">
         <v-row>
-          <v-icon size="25" color="green">{{ 'mdi-trending-up' }}</v-icon>
-          <p>10%</p>
+          <v-icon size="25" :color="growthPercentage >= 0 ? 'green' : 'red'">
+            {{ growthPercentage >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
+          </v-icon>
+          <p :class="growthPercentage >= 0 ? 'text-green' : 'text-red'">
+            {{ Math.abs(growthPercentage).toFixed(2) }}%
+          </p>
         </v-row>
       </div>
     </v-card>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+defineProps<{
+  totalGrowth: number
+  growthPercentage: number
+}>()
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(value)
+}
+</script>
 
 <style scoped>
 .outlined-card {

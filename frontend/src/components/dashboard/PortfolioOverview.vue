@@ -19,16 +19,7 @@
 import { ref } from 'vue'
 import SingleHoldingWidget from '@/components/Dashboard/SingleHoldingWidget.vue'
 import HoldingPopup from '@/components/Dashboard/HoldingPopup.vue'
-
-interface Holding {
-  id: string
-  name: string
-  ticker: string
-  shares: number
-  avgPrice: number
-  currentPrice: number
-  totalValue: number
-}
+import type { Holding } from '@/types/holding'
 
 const holdings = ref<Holding[]>([
   {
