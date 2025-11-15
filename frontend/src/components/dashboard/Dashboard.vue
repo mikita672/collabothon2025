@@ -186,7 +186,8 @@ const chartOptions = computed(() => ({
         drawBorder: false,
       },
       ticks: {
-        callback: (value: any) => '$' + value.toFixed(2),
+        stepSize: 500,
+        callback: (value: any) => '$' + value.toFixed(0),
       },
     },
   },

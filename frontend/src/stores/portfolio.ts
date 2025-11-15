@@ -218,7 +218,19 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     if (!portfolioData.value) throw new Error('No portfolio data')
 
     const stocks = portfolioData.value.stocks
-    const investedValue = portfolioData.value.invested || 0
+
+    // Calculate current portfolio value: balance + current value of all stocks
+    const currentStocksVal = stocks.reduce((total, stock) => {
+      const currentPrice = simulationData.value
+        ? simulationData.value.components.find((c) => c.symbol === stock.ticker)?.final_price ||
+          stock.purchasePrice
+        : stock.purchasePrice
+      return total + stock.quantity * currentPrice
+    }, 0)
+
+    const portfolioValue = simulationData.value
+      ? simulationData.value.portfolio_final_value
+      : portfolioData.value.balance + currentStocksVal
 
     const configs = stocks.map((stock) => ({
       symbol: stock.ticker,
@@ -240,7 +252,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     const shares = stocks.map((stock) => stock.quantity)
 
     return {
-      portfolio_start: investedValue,
+      portfolio_start: portfolioValue,
       count: stocks.length,
       configs,
       shares,
@@ -249,29 +261,19 @@ export const usePortfolioStore = defineStore('portfolio', () => {
 
   const updateSimulationStep = async (baseRequest: SimulationRequest) => {
     try {
-      const request = { ...baseRequest }
+      // Create updated request with current portfolio state
+      const request = createSimulationRequest()
 
-      if (simulationData.value) {
-        request.configs = request.configs.map((config, index) => {
-          const component = simulationData.value?.components[index]
-          return {
-            ...config,
-            useStartP0: true,
-            startP0: component?.final_price || config.price,
-            seed: config.seed || Math.floor(Math.random() * 1000000),
-          }
-        })
-      } else {
-        request.configs = request.configs.map((config) => ({
-          ...config,
-          seed: Math.floor(Math.random() * 1000000),
-        }))
-      }
+      // Update seeds for randomness
+      request.configs = request.configs.map((config) => ({
+        ...config,
+        seed: Math.floor(Math.random() * 1000000),
+      }))
 
       const newData = await SimulationService.simulatePortfolio(request)
       simulationData.value = newData
 
-      if (newData.portfolio_final_value && portfolioSeries.value.length > 0) {
+      if (newData.portfolio_final_value) {
         portfolioSeries.value.push(newData.portfolio_final_value)
       }
     } catch (err) {
