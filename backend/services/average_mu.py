@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Sequence, Optional, Literal
+from typing import Sequence, Optional, Literal, Union, List, Dict, Any
 import math
 
 def compute_average(nums: Sequence[float]) -> Optional[float]:
@@ -52,4 +52,86 @@ def simulate_price_series(
         "prices": prices,
         "final_price": price[-1],
         "change_rate": change_rate
+    }
+def simulate_portfolio(
+    portfolio_start: float,
+    configs: List[Dict[str, Any]],
+    shares: List[Union[int, float]],
+) -> Dict[str, Any]:
+    """
+    configs: список словарей с параметрами для simulate_price_series:
+      {
+        "price": float (P0) ИЛИ "prices": [..] (возьмём среднее),
+        "mu_daily": float,
+        "sigma_daily": float,
+        "useStartP0": bool,
+        "startP0": float,
+        "n_steps": int,
+        "nu": int,
+        "clip_limit": float,
+        "seed": int|None,
+        "trend": "standard"|"up"|"down",
+        "symbol": "STRING" (опционально)
+      }
+    shares: количество купленных акций для каждого конфига.
+    """
+    if len(configs) != len(shares):
+        raise ValueError("configs length != shares length")
+    if not configs:
+        raise ValueError("empty configs")
+
+    simulations: List[Dict[str, Any]] = []
+    n_steps_ref: Optional[int] = None
+
+    for idx, cfg in enumerate(configs):
+        price_field = cfg.get("price")
+        prices_arr = cfg.get("prices")
+        if prices_arr is not None and isinstance(prices_arr, (list, tuple)):
+            if len(prices_arr) == 0:
+                raise ValueError("empty prices array in config index {}".format(idx))
+            P0 = float(np.asarray(prices_arr, dtype=np.float64).mean())
+        elif price_field is not None:
+            P0 = float(price_field)
+        else:
+            raise ValueError("config index {} must have 'price' or 'prices'".format(idx))
+
+        sim = simulate_price_series(
+            P0=P0,
+            mu_daily=float(cfg.get("mu_daily", 0.0005)),
+            sigma_daily=float(cfg.get("sigma_daily", 0.02)),
+            useStartP0=bool(cfg.get("useStartP0", False)),
+            startP0=float(cfg.get("startP0", 100.0)),
+            n_steps=int(cfg.get("n_steps", 390)),
+            nu=int(cfg.get("nu", 5)),
+            clip_limit=float(cfg.get("clip_limit", 0.05)),
+            seed=cfg.get("seed"),
+            trend=cfg.get("trend", "standard"),
+        )
+        sim["symbol"] = cfg.get("symbol", f"ASSET_{idx+1}")
+        sim["shares"] = float(shares[idx])
+        simulations.append(sim)
+
+        steps_now = len(sim["prices"])
+        if n_steps_ref is None:
+            n_steps_ref = steps_now
+        elif n_steps_ref != steps_now:
+            raise ValueError("all simulations must have same n_steps")
+
+    # Расчёт портфельного временного ряда: сумма(price_t_i * shares_i)
+    portfolio_series: List[float] = []
+    for t in range(n_steps_ref):
+        total = 0.0
+        for sim in simulations:
+            total += sim["prices"][t] * sim["shares"]
+        portfolio_series.append(total)
+
+    final_value = portfolio_series[-1]
+    change_rate = (final_value - portfolio_start) / portfolio_start if portfolio_start > 0 else 0.0
+
+    return {
+        "portfolio_start": float(portfolio_start),
+        "portfolio_final_value": float(final_value),
+        "portfolio_change_rate": float(change_rate),
+        "portfolio_series": portfolio_series,
+        "components": simulations,
     }

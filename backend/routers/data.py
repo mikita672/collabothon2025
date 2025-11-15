@@ -1,12 +1,31 @@
 from typing import List, Literal, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from services.average_mu import compute_average, simulate_price_series
+from services.average_mu import compute_average, simulate_price_series, simulate_portfolio
 
 router = APIRouter(tags=["averages"])
 
 class PricesPayload(BaseModel):
     prices: List[float]
+
+class PortfolioSimItem(BaseModel):
+    symbol: Optional[str] = None
+    price: float = 100
+    mu_daily: float = 0.0005
+    sigma_daily: float = 0.02
+    useStartP0: bool = False
+    startP0: float = 100.0
+    n_steps: int = 390
+    nu: int = 5
+    clip_limit: float = 0.05
+    seed: Optional[int] = None
+    trend: Literal["standard", "up", "down"] = "standard"
+
+class PortfolioPayload(BaseModel):
+    portfolio_start: float
+    count: int
+    configs: List[PortfolioSimItem]
+    shares: List[float]
 
 @router.post("/average")
 def average_endpoint(body: PricesPayload):
@@ -61,3 +80,16 @@ def simulate_symbol(
             "trend": trend
         },
     }
+@router.post("/simulate_portfolio")
+def simulate_portfolio_endpoint(body: PortfolioPayload):
+    if body.count != len(body.configs) or body.count != len(body.shares):
+        raise HTTPException(status_code=400, detail="count mismatch with configs/shares")
+    try:
+        portfolio_res = simulate_portfolio(
+            portfolio_start=body.portfolio_start,
+            configs=[cfg.model_dump() for cfg in body.configs],
+            shares=body.shares,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return portfolio_res
