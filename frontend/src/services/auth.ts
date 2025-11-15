@@ -2,6 +2,7 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithCustomToken,
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
@@ -37,6 +38,19 @@ export class AuthService {
       const userCredential = await signInWithPopup(auth, provider);
       return { success: true, user: userCredential.user };
     } catch (error: any) {
+      return { success: false, error: this.getErrorMessage(error.code) };
+    }
+  }
+
+  // Login with Firebase Custom Token (for QR authentication)
+  static async loginWithToken(customToken: string) {
+    try {
+      console.log('🔑 Attempting login with Custom Token');
+      const userCredential = await signInWithCustomToken(auth, customToken);
+      console.log('✅ Login with Custom Token successful:', userCredential.user.email);
+      return { success: true, user: userCredential.user };
+    } catch (error: any) {
+      console.error('❌ Error logging in with Custom Token:', error.code, error.message);
       return { success: false, error: this.getErrorMessage(error.code) };
     }
   }
