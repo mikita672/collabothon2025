@@ -1,6 +1,6 @@
 <template>
   <v-container fluid style="background-color: #f9f9fb" class="pa-6">
-    <h1>AI Portfolio Dashboard</h1>
+    <h1 style="font-family: afacad">AI Portfolio Dashboard</h1>
     <h3 style="font-family: afacad" class="font-weight-light">
       Your AI-managed investment portfolio performance and holdings
     </h3>
