@@ -1,23 +1,37 @@
-import { doc, getDoc, onSnapshot } from 'firebase/firestore'
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/firebase'
 import type { UserPortfolioData, PortfolioStats } from '@/types/portfolio'
 
 export class PortfolioService {
-  /**
-   * Fetch user portfolio data from Firestore
-   * @param userId - The user's UID
-   * @returns UserPortfolioData or null if not found
-   */
+  static async createUserPortfolio(userId: string, email: string, name?: string): Promise<void> {
+    try {
+      const userDocRef = doc(db, 'users', userId)
+
+      const initialData: UserPortfolioData = {
+        balance: 0,
+        invested: 0,
+        name: name ?? 'skebob',
+        risk_level: undefined,
+      }
+
+      await setDoc(userDocRef, initialData)
+      console.log('User portfolio created successfully')
+    } catch (error) {
+      console.error('Error creating user portfolio:', error)
+      throw error
+    }
+  }
+
   static async getUserPortfolioData(userId: string): Promise<UserPortfolioData | null> {
     try {
-      const userDocRef = doc(db, userId, 'portfolio')
+      const userDocRef = doc(db, 'users', userId)
       const userDoc = await getDoc(userDocRef)
-      
+
       if (userDoc.exists()) {
         const data = userDoc.data() as UserPortfolioData
         return data
       }
-      
+
       return null
     } catch (error) {
       console.error('Error fetching user portfolio data:', error)
@@ -25,11 +39,6 @@ export class PortfolioService {
     }
   }
 
-  /**
-   * Calculate portfolio stats from user data
-   * @param userData - User portfolio data from Firebase
-   * @returns Calculated PortfolioStats
-   */
   static calculatePortfolioStats(userData: UserPortfolioData): PortfolioStats {
     const currentBalance = userData.balance
     const totalInvested = userData.invested
@@ -42,22 +51,16 @@ export class PortfolioService {
       totalInvested,
       currentValue,
       totalGrowth,
-      growthPercentage
+      growthPercentage,
     }
   }
 
-  /**
-   * Subscribe to real-time updates of user portfolio data
-   * @param userId - The user's UID
-   * @param callback - Callback function to handle data updates
-   * @returns Unsubscribe function
-   */
   static subscribeToPortfolioData(
     userId: string,
-    callback: (data: UserPortfolioData | null) => void
+    callback: (data: UserPortfolioData | null) => void,
   ) {
-    const userDocRef = doc(db, userId, 'portfolio')
-    
+    const userDocRef = doc(db, 'users', userId)
+
     return onSnapshot(
       userDocRef,
       (docSnapshot) => {
@@ -70,7 +73,7 @@ export class PortfolioService {
       (error) => {
         console.error('Error subscribing to portfolio data:', error)
         callback(null)
-      }
+      },
     )
   }
 }

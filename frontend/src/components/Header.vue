@@ -1,9 +1,6 @@
 <template>
-  <v-app-bar
-    :elevation="0"
-    color="#002e3d"
-  >
-    <v-container class="d-flex align-center" fluid style="max-width: 1600px;">
+  <v-app-bar :elevation="0" color="#002e3d">
+    <v-container class="d-flex align-center" fluid style="max-width: 1600px">
       <div class="d-flex align-center logo-section">
         <img src="../assets/logo.png" alt="Logo" class="header-logo" />
       </div>
@@ -11,7 +8,6 @@
       <v-spacer></v-spacer>
 
       <div class="d-flex align-center nav-section">
-        <!-- User Profile Menu -->
         <v-menu location="bottom end">
           <template v-slot:activator="{ props }">
             <div v-bind="props" class="user-profile">
@@ -24,7 +20,7 @@
               <v-icon color="#ffffff" size="18" class="ml-2">mdi-chevron-down</v-icon>
             </div>
           </template>
-          
+
           <v-card class="profile-menu" elevation="8">
             <v-list class="py-2">
               <v-list-item @click="handleSettings" class="menu-item">
@@ -33,9 +29,9 @@
                 </template>
                 <v-list-item-title class="menu-item-title">Settings</v-list-item-title>
               </v-list-item>
-              
+
               <v-divider class="my-1"></v-divider>
-              
+
               <v-list-item @click="handleLogout" class="menu-item logout-item">
                 <template v-slot:prepend>
                   <v-icon size="20" color="#dc2626">mdi-logout</v-icon>
@@ -55,20 +51,19 @@ import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
 interface Props {
-  isLoggedIn?: boolean;
+  isLoggedIn?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isLoggedIn: false,
-});
+})
 
 const emit = defineEmits<{
-  logout: [];
-}>();
+  logout: []
+}>()
 
 const authStore = useAuthStore()
 
-// Display user name from store, or fallback to email or default
 const displayName = computed(() => {
   if (authStore.userName) return authStore.userName
   if (authStore.userEmail) return authStore.userEmail
@@ -76,20 +71,20 @@ const displayName = computed(() => {
 })
 
 const handleLogout = () => {
-  emit('logout');
-};
+  emit('logout')
+}
 
 const handleProfile = () => {
-  console.log('Navigate to profile');
-};
+  console.log('Navigate to profile')
+}
 
 const handleSettings = () => {
-  console.log('Navigate to settings');
-};
+  console.log('Navigate to settings')
+}
 
 const handlePortfolio = () => {
-  console.log('Navigate to portfolio');
-};
+  console.log('Navigate to portfolio')
+}
 </script>
 
 <style scoped>
@@ -143,12 +138,10 @@ const handlePortfolio = () => {
   letter-spacing: 0.02em;
 }
 
-/* Navigation Section */
 .nav-section {
   gap: 24px;
 }
 
-/* User Profile */
 .user-profile {
   display: flex;
   align-items: center;
@@ -170,7 +163,7 @@ const handlePortfolio = () => {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #0A3D2E 0%, #0d5240 100%);
+  background: linear-gradient(135deg, #0a3d2e 0%, #0d5240 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,7 +193,6 @@ const handlePortfolio = () => {
   font-weight: 500;
 }
 
-/* Profile Menu */
 .profile-menu {
   border-radius: 12px !important;
   overflow: hidden;
@@ -234,12 +226,11 @@ const handlePortfolio = () => {
   color: #dc2626 !important;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .brand-name {
     font-size: 1.1rem;
   }
-  
+
   .brand-subtitle {
     font-size: 0.7rem;
   }
@@ -250,15 +241,15 @@ const handlePortfolio = () => {
     width: 30px;
     height: 30px;
   }
-  
+
   .brand-info {
     margin-left: 12px !important;
   }
-  
+
   .nav-section {
     gap: 12px;
   }
-  
+
   .user-profile {
     padding: 6px;
   }

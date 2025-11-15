@@ -46,7 +46,6 @@ import {
   Filler,
 } from 'chart.js'
 
-// Fetch portfolio data from Firestore
 const { portfolioStats, isLoading, error } = usePortfolioData()
 
 ChartJS.register(
