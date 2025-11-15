@@ -5,3 +5,10 @@ export interface PortfolioStats {
   totalGrowth: number
   growthPercentage: number
 }
+
+export interface UserPortfolioData {
+  balance: number
+  invested: number
+  name: string
+  risk_level?: string
+}
