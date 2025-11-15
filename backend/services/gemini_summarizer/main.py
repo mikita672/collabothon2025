@@ -1,11 +1,22 @@
-# main.py
-from news_api import fetch_top_headlines, build_article_text
-from gemini_summarizer import summarize_text
+from firebase_config import get_firestore_client
 
 
-def main() -> None:
-    pass
+# Получаем клиент
+db = get_firestore_client()
 
+# Пример 1: прочитать текущую уверенность по AAPL
+doc_ref = db.collection("comp").document("AAPL")
+doc = doc_ref.get()
 
-if __name__ == "__main__":
-    main()
+if doc.exists:
+    print("AAPL confidence (до):", doc.to_dict().get("confidence"))
+else:
+    print("Документ не найден")
+
+# Пример 2: обновить значение
+doc_ref.update({"confidence": 0.91})
+print("AAPL обновлён → 0.91")
+
+# Ещё раз читаем
+doc = doc_ref.get()
+print("AAPL confidence (после):", doc.to_dict().get("confidence"))
