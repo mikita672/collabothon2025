@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue'
+import { computed, watch, onUnmounted } from 'vue'
 import { useSimulationStore } from '@/stores/simulation'
 import { usePortfolioData } from '@/composables/usePortfolioData'
 
@@ -8,16 +8,20 @@ export function usePortfolioSimulation() {
 
   watch(
     () => portfolioStats.value.totalInvested,
-    (totalInvested) => {
-      if (totalInvested > 0 && !simulationStore.loading) {
-        simulationStore.fetchSimulation(totalInvested)
+    async (totalInvested) => {
+      if (totalInvested > 0 && !simulationStore.loading && !simulationStore.simulationData) {
+        await simulationStore.fetchSimulation(totalInvested)
+        simulationStore.startRealtimeUpdates()
       }
     },
     { immediate: true },
   )
 
-  const isLoading = computed(() => isPortfolioLoading.value || simulationStore.loading)
+  onUnmounted(() => {
+    simulationStore.stopRealtimeUpdates()
+  })
 
+  const isLoading = computed(() => isPortfolioLoading.value || simulationStore.loading)
   const error = computed(() => simulationStore.error)
 
   return {
@@ -30,8 +34,12 @@ export function usePortfolioSimulation() {
 
     isLoading,
     error,
+    isStreaming: computed(() => simulationStore.isStreaming),
+    isUpdating: computed(() => simulationStore.isUpdating),
 
     fetchSimulation: simulationStore.fetchSimulation,
     updateSimulation: simulationStore.updateSimulation,
+    startRealtimeUpdates: simulationStore.startRealtimeUpdates,
+    stopRealtimeUpdates: simulationStore.stopRealtimeUpdates,
   }
 }

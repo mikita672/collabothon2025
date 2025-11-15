@@ -8,6 +8,14 @@ export const useSimulationStore = defineStore('simulation', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  const currentRequest = ref<SimulationRequest | null>(null)
+  const isStreaming = ref(false)
+  const isUpdating = ref(false)
+  const timerId = ref<any>(null)
+
+  const chartWindowSize = ref(390)
+  const currentTotalSteps = ref(390)
+
   const portfolioSeries = computed(() => simulationData.value?.portfolio_series || [])
   const portfolioStart = computed(() => simulationData.value?.portfolio_start || 0)
   const portfolioFinalValue = computed(() => simulationData.value?.portfolio_final_value || 0)
@@ -46,18 +54,42 @@ export const useSimulationStore = defineStore('simulation', () => {
     }
   })
 
+  const stopRealtimeUpdates = () => {
+    if (!timerId.value) {
+      return
+    }
+
+    console.log('Stopping real-time simulation updates.')
+    window.clearInterval(timerId.value)
+    timerId.value = null
+    isStreaming.value = false
+    isUpdating.value = false
+  }
+
   const fetchSimulation = async (
     portfolioStart: number,
     customRequest?: Partial<SimulationRequest>,
   ) => {
     loading.value = true
     error.value = null
+    stopRealtimeUpdates()
 
     try {
       const request = customRequest
         ? { ...SimulationService.createDefaultRequest(portfolioStart), ...customRequest }
         : SimulationService.createDefaultRequest(portfolioStart)
 
+      request.configs.forEach((config) => {
+        if (config.seed === null) {
+          config.seed = Math.floor(Math.random() * 1000000)
+        }
+      })
+
+      const steps = request.configs[0]?.n_steps || 390
+      chartWindowSize.value = steps
+      currentTotalSteps.value = steps
+
+      currentRequest.value = request
       const data = await SimulationService.simulatePortfolio(request)
       simulationData.value = data
     } catch (err) {
@@ -71,8 +103,20 @@ export const useSimulationStore = defineStore('simulation', () => {
   const updateSimulation = async (request: SimulationRequest) => {
     loading.value = true
     error.value = null
+    stopRealtimeUpdates()
 
     try {
+      request.configs.forEach((config) => {
+        if (config.seed === null) {
+          config.seed = Math.floor(Math.random() * 1000000)
+        }
+      })
+
+      const steps = request.configs[0]?.n_steps || 390
+      chartWindowSize.value = steps
+      currentTotalSteps.value = steps
+
+      currentRequest.value = request
       const data = await SimulationService.simulatePortfolio(request)
       simulationData.value = data
     } catch (err) {
@@ -83,15 +127,92 @@ export const useSimulationStore = defineStore('simulation', () => {
     }
   }
 
-  const clearSimulation = () => {
-    simulationData.value = null
+  const _fetchNextSteps = async () => {
+    if (isUpdating.value || !currentRequest.value || !simulationData.value) {
+      return
+    }
+
+    isUpdating.value = true
     error.value = null
+
+    try {
+      const newTotalSteps = currentTotalSteps.value + 5
+
+      const newConfigs = currentRequest.value.configs.map((config) => {
+        return {
+          ...config,
+          n_steps: newTotalSteps,
+          useStartP0: false,
+          seed: config.seed,
+        }
+      })
+
+      const nextRequest: SimulationRequest = {
+        ...currentRequest.value,
+        portfolio_start: currentRequest.value.portfolio_start,
+        configs: newConfigs,
+      }
+
+      const newData = await SimulationService.simulatePortfolio(nextRequest)
+
+      if (simulationData.value) {
+        const newSeries = newData.portfolio_series.slice(-chartWindowSize.value)
+        simulationData.value.portfolio_series = newSeries
+
+        simulationData.value.components = simulationData.value.components.map((comp, index) => {
+          const newPrices = newData.components[index]?.prices.slice(-chartWindowSize.value) || []
+          return {
+            ...comp,
+            prices: newPrices,
+            final_price: newData.components[index]?.final_price || comp.final_price,
+            change_rate: newData.components[index]?.change_rate || comp.change_rate,
+          }
+        })
+
+        simulationData.value.portfolio_final_value = newData.portfolio_final_value
+        simulationData.value.portfolio_start = newSeries[0] ?? 0
+        simulationData.value.portfolio_change_rate =
+          simulationData.value.portfolio_final_value / simulationData.value.portfolio_start - 1
+
+        currentTotalSteps.value = newTotalSteps
+      }
+    } catch (err) {
+      console.error('Error fetching next simulation steps:', err)
+      error.value = 'Failed to update simulation'
+      stopRealtimeUpdates()
+    } finally {
+      isUpdating.value = false
+    }
+  }
+
+  const startRealtimeUpdates = () => {
+    if (isStreaming.value || timerId.value) {
+      return
+    }
+
+    console.log('Starting real-time simulation updates...')
+    isStreaming.value = true
+    if (timerId.value) window.clearInterval(timerId.value)
+
+    timerId.value = window.setInterval(async () => {
+      await _fetchNextSteps()
+    }, 5000)
+  }
+
+  const clearSimulation = () => {
+    stopRealtimeUpdates()
+    simulationData.value = null
+    currentRequest.value = null
+    error.value = null
+    currentTotalSteps.value = chartWindowSize.value
   }
 
   return {
     simulationData,
     loading,
     error,
+    isStreaming,
+    isUpdating,
 
     portfolioSeries,
     portfolioStart,
@@ -103,5 +224,7 @@ export const useSimulationStore = defineStore('simulation', () => {
     fetchSimulation,
     updateSimulation,
     clearSimulation,
+    startRealtimeUpdates,
+    stopRealtimeUpdates,
   }
 })
