@@ -2,14 +2,38 @@
 import Dashboard from './dashboard/Dashboard.vue'
 import NewsCard from './NewsFeed/NewsCard.vue'
 import NewsDescription from './NewsFeed/NewsDescription.vue'
+import PerformanceSchedule from './dashboard/PerformanceSchedule.vue'
+import PortfolioAllocationChart from './dashboard/PortfolioAllocationChart.vue'
+import PerformanceChart from './dashboard/PerformanceChart.vue'
 import { useNewsData } from '@/composables/useNewsData'
 import { useNewsSelection } from '@/composables/useNewsSelection'
 import { useNewsScheduler } from '@/composables/useNewsScheduler'
 import { useNewsActions } from '@/composables/useNewsActions'
-import { computed } from 'vue'
+import { usePortfolioData } from '@/composables/usePortfolioData'
+import { useStockPerformance } from '@/composables/useStockPerformance'
+import { computed, ref, watch } from 'vue'
 
 const { newsItems, stockData, isLoading, error, loadStockData, loadNews, loadDemoNews } = useNewsData()
 const { selectedNews, selectNews, clearSelection } = useNewsSelection()
+const { portfolioData, portfolioStats } = usePortfolioData()
+
+const stocks = computed(() => portfolioData.value?.stocks || [])
+
+// Load performance data from API for all stocks (like NewsDescription does)
+const { performanceData, isLoading: isPerformanceLoading, error: performanceError } = useStockPerformance(stocks)
+
+// Selected ticker for performance chart
+const selectedTicker = ref('')
+
+// Get performance data for selected ticker
+const selectedPerformanceData = computed(() => performanceData.value[selectedTicker.value] || [])
+
+// Watch stocks and set first ticker
+watch(stocks, (newStocks) => {
+  if (newStocks.length > 0 && !selectedTicker.value) {
+    selectedTicker.value = newStocks[0].ticker
+  }
+}, { immediate: true })
 
 // Manual refresh only - automatic scheduling disabled to save API quota
 const { 
@@ -54,78 +78,106 @@ const handleDemoNews = async () => {
 </script>
 
 <template>
-      <div class="split-layout">
-        <!-- News Feed Section -->
-        <div class="news-section pa-6" style="font-family: afacad; background-color: #f9f9fb">
-          <div class="d-flex justify-space-between align-center mb-4">
-            <div>
-              <h1>News Feed</h1>
-              <h3 class="font-weight-light">Latest news affecting your portfolio</h3>
-            </div>
-            <div class="d-flex align-center" style="gap: 12px;">
-              <!-- Action Buttons Group -->
-              <div class="d-flex align-center" style="gap: 8px;">
-                <v-btn 
-                  color="primary"
-                  variant="tonal"
-                  size="small"
-                  :loading="isLoading"
-                  @click="handleDemoNews"
-                  prepend-icon="mdi-presentation"
-                >
-                  Demo
-                </v-btn>
+      <div class="main-container">
+        <div class="split-layout">
+          <!-- News Feed Section -->
+          <div class="news-section pa-6" style="font-family: afacad; background-color: #f9f9fb">
+            <div class="d-flex justify-space-between align-center mb-4">
+              <div>
+                <h1>News Feed</h1>
+                <h3 class="font-weight-light">Latest news affecting your portfolio</h3>
+              </div>
+              <div class="d-flex align-center" style="gap: 12px;">
+                <!-- Action Buttons Group -->
+                <div class="d-flex align-center" style="gap: 8px;">
+                  <v-btn 
+                    color="primary"
+                    variant="tonal"
+                    size="small"
+                    :loading="isLoading"
+                    @click="handleDemoNews"
+                    prepend-icon="mdi-presentation"
+                  >
+                    Demo
+                  </v-btn>
+                  
+                  <v-btn 
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    :loading="isLoading"
+                    @click="handleRefresh"
+                    prepend-icon="mdi-refresh"
+                  >
+                    Refresh
+                  </v-btn>
+                </div>
                 
-                <v-btn 
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                  :loading="isLoading"
-                  @click="handleRefresh"
-                  prepend-icon="mdi-refresh"
-                >
-                  Refresh
-                </v-btn>
-              </div>
-              
-              <!-- Update Times -->
-              <div class="d-flex flex-column" style="gap: 2px;">
-                <div class="text-caption text-grey">
-                  Last: {{ lastUpdateFormatted }}
-                </div>
-                <div class="text-caption text-grey">
-                  Next: {{ nextUpdateFormatted }}
+                <!-- Update Times -->
+                <div class="d-flex flex-column" style="gap: 2px;">
+                  <div class="text-caption text-grey">
+                    Last: {{ lastUpdateFormatted }}
+                  </div>
+                  <div class="text-caption text-grey">
+                    Next: {{ nextUpdateFormatted }}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <!-- Loading State -->
-          <div v-if="isLoading" class="text-center py-8">
-            <v-progress-circular indeterminate color="primary"></v-progress-circular>
-            <p class="mt-2 text-grey">Loading news...</p>
+            
+            <!-- Loading State -->
+            <div v-if="isLoading" class="text-center py-8">
+              <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              <p class="mt-2 text-grey">Loading news...</p>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="error" class="text-center py-8">
+              <v-icon color="error" size="48">mdi-alert-circle-outline</v-icon>
+              <p class="mt-2 text-error">{{ error }}</p>
+            </div>
+
+            <!-- News List -->
+            <div v-else class="news-list">
+              <NewsCard 
+                v-for="item in newsItems" 
+                :key="item.id" 
+                :news="item" 
+                @click="handleNewsClick" 
+              />
+            </div>
           </div>
 
-          <!-- Error State -->
-          <div v-else-if="error" class="text-center py-8">
-            <v-icon color="error" size="48">mdi-alert-circle-outline</v-icon>
-            <p class="mt-2 text-error">{{ error }}</p>
-          </div>
-
-          <!-- News List -->
-          <div v-else class="news-list">
-            <NewsCard 
-              v-for="item in newsItems" 
-              :key="item.id" 
-              :news="item" 
-              @click="handleNewsClick" 
-            />
+          <!-- Dashboard -->
+          <div class="dashboard-section">
+            <Dashboard />
           </div>
         </div>
 
-        <!-- Dashboard -->
-        <div class="dashboard-section">
-          <Dashboard />
+        <!-- New Components Below - Full Width -->
+        <div class="charts-row mt-6 px-6" style="display: flex; gap: 1.5rem;">
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.5rem;">
+            <PerformanceChart
+              v-if="selectedTicker && selectedPerformanceData.length > 0"
+              :selectedTicker="selectedTicker"
+              :performanceData="selectedPerformanceData"
+            />
+            
+            <PortfolioAllocationChart 
+              v-if="stocks.length > 0"
+              :stocks="stocks" 
+              :totalValue="portfolioStats.currentValue" 
+            />
+          </div>
+          
+          <div style="flex: 1; min-width: 0;">
+            <PerformanceSchedule 
+              v-if="stocks.length > 0"
+              :stocks="stocks" 
+              :performanceData="performanceData"
+              @update:selectedTicker="selectedTicker = $event"
+            />
+          </div>
         </div>
       </div>
 
@@ -133,6 +185,11 @@ const handleDemoNews = async () => {
 </template>
 
 <style scoped>
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+}
 
 .split-layout {
   display: flex;
