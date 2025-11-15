@@ -1,4 +1,4 @@
-from firebase_config import get_firestore_client
+from .firebase_config import get_firestore_client
 
 
 # Получаем клиент
