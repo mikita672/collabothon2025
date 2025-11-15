@@ -37,12 +37,8 @@ onMounted(async () => {
 
 <template>
   <v-app>
-    <Header
-      v-if="authStore.isLoggedIn"
-      :is-logged-in="authStore.isLoggedIn"
-      @logout="handleLogout"
-    />
-
+    <Header v-if="authStore.isLoggedIn" :is-logged-in="authStore.isLoggedIn" @logout="handleLogout" />
+    
     <v-main>
       <template v-if="!authStore.isLoggedIn">
         <Register v-if="showRegister" @register="handleRegister" @go-to-login="goToLogin" />
@@ -50,6 +46,7 @@ onMounted(async () => {
       </template>
       <MainView v-else />
     </v-main>
+    
   </v-app>
 </template>
 
