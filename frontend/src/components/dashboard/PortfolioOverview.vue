@@ -1,16 +1,18 @@
 <template>
-  <v-card rounded="lg">
-    <div class="d-flex flex-column ga-3 pa-5">
-      <SingleHoldingWidget
-        v-for="holding in holdings"
-        :key="holding.id"
-        :holding="holding"
-        @click="handleHoldingClick"
-      />
-    </div>
-  </v-card>
+  <div>
+    <v-card rounded="lg">
+      <div class="d-flex flex-column ga-3 pa-5">
+        <SingleHoldingWidget
+          v-for="holding in holdings"
+          :key="holding.id"
+          :holding="holding"
+          @click="handleHoldingClick"
+        />
+      </div>
+    </v-card>
 
-  <HoldingPopup v-model="isDialogOpen" :holding="selectedHolding" @close="isDialogOpen = false" />
+    <HoldingPopup v-model="isDialogOpen" :holding="selectedHolding" @close="isDialogOpen = false" />
+  </div>
 </template>
 
 <script setup lang="ts">

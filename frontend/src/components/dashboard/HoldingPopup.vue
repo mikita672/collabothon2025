@@ -2,7 +2,9 @@
   <v-dialog v-model="model" max-width="700">
     <v-card v-if="holding" rounded="lg">
       <v-card-title class="d-flex align-center pa-4">
-        <span class="text-h5 font-weight-medium"> {{ holding.name }} ({{ holding.ticker }}) </span>
+        <span class="text-h5 font-weight-medium" style="font-family: afacad">
+          {{ holding.name }} ({{ holding.ticker }})
+        </span>
         <v-spacer></v-spacer>
         <v-btn icon="mdi-close" variant="text" @click="emit('close')"></v-btn>
       </v-card-title>
@@ -11,12 +13,36 @@
 
       <v-card-text class="pa-4">
         <v-col>
-          <v-row class="ga-5 justify-center">
-            <v-card title="Total Shares Bought"> 1200 </v-card>
-            <v-card title="Total Shares Sold"> 0 </v-card>
-            <v-card title="Net Position"> 1200 Shares</v-card>
+          <v-row class="mb-4">
+            <v-col cols="12" sm="4">
+              <v-sheet class="pa-4 text-center rounded-lg" border>
+                <div class="text-caption text-medium-emphasis" style="font-family: afacad">
+                  Total Shares Bought
+                </div>
+                <div class="text-h6 font-weight-bold" style="font-family: afacad">1200</div>
+              </v-sheet>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-sheet class="pa-4 text-center rounded-lg" border>
+                <div class="text-caption text-medium-emphasis" style="font-family: afacad">
+                  Total Shares Sold
+                </div>
+                <div class="text-h6 font-weight-bold" style="font-family: afacad">0</div>
+              </v-sheet>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-sheet class="pa-4 text-center rounded-lg" border>
+                <div class="text-caption text-medium-emphasis" style="font-family: afacad">
+                  Net Position
+                </div>
+                <div class="text-h6 font-weight-bold" style="font-family: afacad">1200 shares</div>
+              </v-sheet>
+            </v-col>
           </v-row>
-          <p class="mt-7 ml-7">All Transactions</p>
+          <div class="text-subtitle-1 font-weight-medium mb-3" style="font-family: afacad">
+            All Transactions
+          </div>
+
           <TransactionsHistory />
         </v-col>
       </v-card-text>
