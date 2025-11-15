@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import SingleHoldingWidget from './SingleHoldingWidget.vue'
-import HoldingPopup from './HoldingPopup.vue'
+import SingleHoldingWidget from '@/components/Dashboard/SingleHoldingWidget.vue'
+import HoldingPopup from '@/components/Dashboard/HoldingPopup.vue'
 
 interface Holding {
   id: string
