@@ -113,9 +113,8 @@ const allTickers = computed(() => {
 
 const tickerItems = computed(() =>
   allTickers.value.map((ticker) => {
-    const stock = props.stocks.find(s => s.ticker === ticker)
     return {
-      label: stock ? `${ticker} - ${stock.quantity} shares` : ticker,
+      label: ticker,
       value: ticker,
     }
   })

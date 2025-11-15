@@ -19,8 +19,29 @@ const { portfolioData, portfolioStats } = usePortfolioData()
 
 const stocks = computed(() => portfolioData.value?.stocks || [])
 
+// All available tickers (portfolio + common stocks)
+const allTickers = computed(() => {
+  const portfolioTickers = stocks.value.map(s => s.ticker)
+  const commonTickers = ['AAPL', 'MSFT', 'AMZN', 'NVDA', 'GOOGL', 'TSLA', 'META', 'NFLX']
+  return [...new Set([...portfolioTickers, ...commonTickers])]
+})
+
+// Create stock-like objects for all tickers
+const allStocks = computed(() => {
+  return allTickers.value.map(ticker => {
+    const existingStock = stocks.value.find(s => s.ticker === ticker)
+    if (existingStock) return existingStock
+    return {
+      ticker,
+      quantity: 0,
+      purchasePrice: 0,
+      purchaseDate: new Date().toISOString()
+    }
+  })
+})
+
 // Load performance data from API for all stocks (like NewsDescription does)
-const { performanceData, isLoading: isPerformanceLoading, error: performanceError } = useStockPerformance(stocks)
+const { performanceData, isLoading: isPerformanceLoading, error: performanceError } = useStockPerformance(allStocks)
 
 // Selected ticker for performance chart
 const selectedTicker = ref('')
@@ -172,8 +193,8 @@ const handleDemoNews = async () => {
           
           <div style="flex: 1; min-width: 0;">
             <PerformanceSchedule 
-              v-if="stocks.length > 0"
-              :stocks="stocks" 
+              v-if="allStocks.length > 0"
+              :stocks="allStocks" 
               :performanceData="performanceData"
               @update:selectedTicker="selectedTicker = $event"
             />
