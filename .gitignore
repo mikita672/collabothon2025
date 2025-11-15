@@ -8,3 +8,5 @@ frontend/package-lock.json
 .vscode
 /backend/services/__pycache__
 /backend/routers/__pycache__
+frontend/src/firebase.ts
+frontend/.env
