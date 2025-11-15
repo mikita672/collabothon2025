@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Query
-from services.csv_data.csv_import import load_fund_data
+from services.csv_data.csv_import import load_fund_data, load_latest_value
 
 router = APIRouter(tags=["fund-data"])
 
@@ -32,3 +32,16 @@ def fund_multi(tickers: List[str] = Query(..., description="Список тик�
         "found": len(results),
         "missing": errors,
     }
+
+@router.get("/fund/{ticker}/latest")
+def fund_latest(ticker: str):
+    """
+    Возвращает последнее числовое значение из FundData_{TICKER}.csv
+    """
+    try:
+        val = load_latest_value(ticker)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    if val is None:
+        raise HTTPException(status_code=404, detail="No numeric data found")
+    return {"ticker": ticker.upper(), "latest": val}
