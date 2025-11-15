@@ -90,7 +90,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Custom token received: $customToken'),
+          content: Text('Login succesfull!'),
           duration: const Duration(seconds: 3),
         ),
       );
