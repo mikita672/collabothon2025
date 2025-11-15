@@ -1,5 +1,3 @@
-// Portfolio simulation types for FastAPI integration
-
 export interface SimulationConfig {
   symbol: string
   price: number
@@ -11,7 +9,7 @@ export interface SimulationConfig {
   nu: number
   clip_limit: number
   seed: number | null
-  trend: 'standard' | 'bullish' | 'bearish'
+  trend: 'standard' | 'up' | 'down'
 }
 
 export interface SimulationRequest {
