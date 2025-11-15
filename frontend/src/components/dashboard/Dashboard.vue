@@ -94,6 +94,9 @@ const chartData = computed(() => {
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
+  animation: {
+    duration: 0, // Disable all animations
+  },
   plugins: {
     legend: {
       display: false,
