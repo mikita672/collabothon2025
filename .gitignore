@@ -1,6 +1,12 @@
 frontend/.vscode
 /backend/.venv
+/backend/.env
+/backend/__pycache__
 frontend/node_modules
 frontend/package-lock.json
+/backend/services/gemini_summarizer/__pycache__
+.vscode
+/backend/services/__pycache__
+/backend/routers/__pycache__
 frontend/src/firebase.ts
 frontend/.env
