@@ -30,14 +30,17 @@ class TotalInvestedCard extends StatelessWidget {
                 textAlign: TextAlign.left,
               ),
               const Spacer(),
-              Text(
-                '$invested€',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: screenWidth * 0.07,
-                  fontWeight: FontWeight.bold,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$invested€',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: screenWidth * 0.07,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.left,
                 ),
-                textAlign: TextAlign.left,
               ),
             ],
           ),
