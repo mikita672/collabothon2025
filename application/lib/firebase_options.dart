@@ -41,49 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: '***REMOVED***',
-    appId: '1:***REMOVED***:web:8f11c2e602b8d2f0775395',
-    messagingSenderId: '***REMOVED***',
-    projectId: '***REMOVED***',
-    authDomain: '***REMOVED***',
-    storageBucket: '***REMOVED***.firebasestorage.app',
+    apiKey: 'AIzaSyCiDMw6RAcQLECgPvtwOEgAxaij27qDvvs',
+    appId: '1:938406849296:web:8f11c2e602b8d2f0775395',
+    messagingSenderId: '938406849296',
+    projectId: 'collabothon2025-f1484',
+    authDomain: 'collabothon2025-f1484.firebaseapp.com',
+    storageBucket: 'collabothon2025-f1484.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD64s0J0hSHrT_bX0D-XzhE4d-zf52p7ig',
-    appId: '1:***REMOVED***:android:e0a121f2db021df0775395',
-    messagingSenderId: '***REMOVED***',
-    projectId: '***REMOVED***',
-    storageBucket: '***REMOVED***.firebasestorage.app',
+    appId: '1:938406849296:android:e0a121f2db021df0775395',
+    messagingSenderId: '938406849296',
+    projectId: 'collabothon2025-f1484',
+    storageBucket: 'collabothon2025-f1484.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAAAYgkyFUST0XhVW00OAZPaZ11-22cdDo',
-    appId: '1:***REMOVED***:ios:b269d6c5375c21cd775395',
-    messagingSenderId: '***REMOVED***',
-    projectId: '***REMOVED***',
-    storageBucket: '***REMOVED***.firebasestorage.app',
-    iosClientId: '***REMOVED***-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com',
+    appId: '1:938406849296:ios:b269d6c5375c21cd775395',
+    messagingSenderId: '938406849296',
+    projectId: 'collabothon2025-f1484',
+    storageBucket: 'collabothon2025-f1484.firebasestorage.app',
+    iosClientId: '938406849296-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com',
     iosBundleId: 'com.example.application',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAAAYgkyFUST0XhVW00OAZPaZ11-22cdDo',
-    appId: '1:***REMOVED***:ios:b269d6c5375c21cd775395',
-    messagingSenderId: '***REMOVED***',
-    projectId: '***REMOVED***',
-    storageBucket: '***REMOVED***.firebasestorage.app',
-    iosClientId: '***REMOVED***-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com',
+    appId: '1:938406849296:ios:b269d6c5375c21cd775395',
+    messagingSenderId: '938406849296',
+    projectId: 'collabothon2025-f1484',
+    storageBucket: 'collabothon2025-f1484.firebasestorage.app',
+    iosClientId: '938406849296-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com',
     iosBundleId: 'com.example.application',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: '***REMOVED***',
-    appId: '1:***REMOVED***:web:2ad56e4713562524775395',
-    messagingSenderId: '***REMOVED***',
-    projectId: '***REMOVED***',
-    authDomain: '***REMOVED***',
-    storageBucket: '***REMOVED***.firebasestorage.app',
+    apiKey: 'AIzaSyCiDMw6RAcQLECgPvtwOEgAxaij27qDvvs',
+    appId: '1:938406849296:web:2ad56e4713562524775395',
+    messagingSenderId: '938406849296',
+    projectId: 'collabothon2025-f1484',
+    authDomain: 'collabothon2025-f1484.firebaseapp.com',
+    storageBucket: 'collabothon2025-f1484.firebasestorage.app',
   );
 
 }

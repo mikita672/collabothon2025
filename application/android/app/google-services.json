@@ -1,20 +1,20 @@
 {
   "project_info": {
-    "project_number": "***REMOVED***",
-    "project_id": "***REMOVED***",
-    "storage_bucket": "***REMOVED***.firebasestorage.app"
+    "project_number": "938406849296",
+    "project_id": "collabothon2025-f1484",
+    "storage_bucket": "collabothon2025-f1484.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:***REMOVED***:android:34af5fc98b89685e775395",
+        "mobilesdk_app_id": "1:938406849296:android:34af5fc98b89685e775395",
         "android_client_info": {
           "package_name": "com.collabothon2025.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "***REMOVED***-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
+          "client_id": "938406849296-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,11 +27,11 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "***REMOVED***-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
+              "client_id": "938406849296-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "***REMOVED***-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com",
+              "client_id": "938406849296-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.application"
@@ -43,14 +43,14 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:***REMOVED***:android:e0a121f2db021df0775395",
+        "mobilesdk_app_id": "1:938406849296:android:e0a121f2db021df0775395",
         "android_client_info": {
           "package_name": "com.example.application"
         }
       },
       "oauth_client": [
         {
-          "client_id": "***REMOVED***-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
+          "client_id": "938406849296-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -63,11 +63,11 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "***REMOVED***-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
+              "client_id": "938406849296-e4uodgqij7spgvovqcmen9ohg7kbv0ko.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "***REMOVED***-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com",
+              "client_id": "938406849296-53nhln2b4d84evun7o0n07set0hee0eu.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.application"
