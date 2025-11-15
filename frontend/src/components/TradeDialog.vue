@@ -34,25 +34,26 @@
           </div>
         </div>
 
-        <!-- Amount Input -->
+        <!-- Quantity Input -->
         <div class="mb-3">
-          <label class="text-caption text-grey-darken-2 mb-1 d-block">Amount to {{ action === 'buy' ? 'Spend' : 'Sell' }} ($)</label>
+          <label class="text-caption text-grey-darken-2 mb-1 d-block">Number of Shares</label>
           <v-text-field
-            v-model="amountInput"
+            v-model="quantityInput"
             type="number"
             variant="outlined"
             density="compact"
-            prefix="$"
-            placeholder="Enter amount"
+            placeholder="Enter quantity (e.g., 0.6)"
             hide-details
+            step="0.01"
+            min="0"
           ></v-text-field>
         </div>
 
-        <!-- Quantity Display -->
+        <!-- Cost Display -->
         <div class="quantity-display mb-3 pa-2">
           <div class="d-flex justify-space-between align-center">
-            <span class="text-caption text-grey-darken-1">Shares</span>
-            <span class="text-body-1 font-weight-bold">{{ calculatedQuantity }}</span>
+            <span class="text-caption text-grey-darken-1">Price per Share</span>
+            <span class="text-body-1 font-weight-bold">${{ currentPrice.toFixed(2) }}</span>
           </div>
           <div class="d-flex justify-space-between align-center mt-1">
             <span class="text-caption text-grey-darken-1">Total Cost</span>
@@ -81,15 +82,15 @@
 
         <!-- Action Buttons -->
         <v-btn 
-          color="success"
+          :color="action === 'buy' ? 'success' : 'error'"
           size="small"
           block
           :disabled="!canTrade"
           :loading="loading"
           @click="handleTrade"
         >
-          <v-icon start size="18">mdi-cart-plus</v-icon>
-          Buy Stock
+          <v-icon start size="18">{{ action === 'buy' ? 'mdi-cart-plus' : 'mdi-cart-minus' }}</v-icon>
+          {{ action === 'buy' ? 'Buy' : 'Sell' }} Stock
         </v-btn>
       </v-card-text>
     </v-card>
@@ -108,32 +109,25 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{
-  close: []
-  success: []
-}>()
+
+const emit = defineEmits(['close', 'success'])
 
 const portfolioStore = usePortfolioStore()
 
-const amountInput = ref<string>('')
+const quantityInput = ref<string>('')
 const loading = ref(false)
 const errorMessage = ref<string | null>(null)
 
 const balance = computed(() => portfolioStore.balance)
 const ownedQuantity = computed(() => portfolioStore.getStockQuantity(props.ticker))
 
-const amount = computed(() => {
-  const parsed = parseFloat(amountInput.value)
-  return isNaN(parsed) ? 0 : parsed
-})
-
-const calculatedQuantity = computed(() => {
-  if (!amount.value || !props.currentPrice) return 0
-  return Math.floor(amount.value / props.currentPrice)
+const quantity = computed(() => {
+  const parsed = parseFloat(quantityInput.value)
+  return isNaN(parsed) || parsed < 0 ? 0 : parsed
 })
 
 const totalCost = computed(() => {
-  return calculatedQuantity.value * props.currentPrice
+  return quantity.value * props.currentPrice
 })
 
 const balanceAfter = computed(() => {
@@ -145,12 +139,12 @@ const balanceAfter = computed(() => {
 })
 
 const canTrade = computed(() => {
-  if (calculatedQuantity.value <= 0) return false
+  if (quantity.value <= 0) return false
   
   if (props.action === 'buy') {
-    return balanceAfter.value >= 0
+    return totalCost.value <= balance.value
   } else {
-    return calculatedQuantity.value <= ownedQuantity.value
+    return quantity.value <= ownedQuantity.value
   }
 })
 
@@ -167,15 +161,15 @@ const handleTrade = async () => {
   try {
     let result
     if (props.action === 'buy') {
-      result = await portfolioStore.buyStock(props.ticker, calculatedQuantity.value, props.currentPrice)
+      result = await portfolioStore.buyStock(props.ticker, quantity.value, props.currentPrice)
     } else {
-      result = await portfolioStore.sellStock(props.ticker, calculatedQuantity.value, props.currentPrice)
+      result = await portfolioStore.sellStock(props.ticker, quantity.value, props.currentPrice)
     }
 
     if (result.success) {
       emit('success')
       emit('close')
-      amountInput.value = ''
+      quantityInput.value = ''
     } else {
       errorMessage.value = result.error || 'Trade failed'
     }
@@ -188,18 +182,18 @@ const handleTrade = async () => {
 
 watch(() => props.show, (newVal) => {
   if (!newVal) {
-    amountInput.value = ''
+    quantityInput.value = ''
     errorMessage.value = null
   }
 })
 
 // Watch for validation
-watch([amount, calculatedQuantity], () => {
+watch([quantity, totalCost], () => {
   errorMessage.value = null
   
   if (props.action === 'buy' && totalCost.value > balance.value) {
     errorMessage.value = 'Insufficient balance'
-  } else if (props.action === 'sell' && calculatedQuantity.value > ownedQuantity.value) {
+  } else if (props.action === 'sell' && quantity.value > ownedQuantity.value) {
     errorMessage.value = 'Insufficient stock quantity'
   }
 })
