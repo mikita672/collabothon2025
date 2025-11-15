@@ -45,6 +45,7 @@ const { performanceData, isLoading: isPerformanceLoading, error: performanceErro
 
 // Selected ticker for performance chart
 const selectedTicker = ref('')
+const selectedTimeRange = ref('30')
 
 // Get performance data for selected ticker
 const selectedPerformanceData = computed(() => performanceData.value[selectedTicker.value] || [])
@@ -182,6 +183,7 @@ const handleDemoNews = async () => {
               v-if="selectedTicker && selectedPerformanceData.length > 0"
               :selectedTicker="selectedTicker"
               :performanceData="selectedPerformanceData"
+              @update:timeRange="selectedTimeRange = $event"
             />
             
             <PortfolioAllocationChart 
@@ -196,6 +198,7 @@ const handleDemoNews = async () => {
               v-if="allStocks.length > 0"
               :stocks="allStocks" 
               :performanceData="performanceData"
+              :timeRange="selectedTimeRange"
               @update:selectedTicker="selectedTicker = $event"
             />
           </div>

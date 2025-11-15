@@ -93,9 +93,12 @@ import type { Stock, DailyPerformance, PerformanceData } from '@/types/portfolio
 interface Props {
   stocks: Stock[]
   performanceData: PerformanceData
+  timeRange?: string
 }
 
 const props = defineProps<Props>()
+
+const currentTimeRange = computed(() => props.timeRange || '30')
 
 const emit = defineEmits<{
   'update:selectedTicker': [ticker: string]
@@ -149,12 +152,17 @@ const currentPrice = computed(() => {
   return latestPrice.value
 })
 
-// Calculate gain/loss from first historical price to current price
+// Calculate gain/loss from first historical price to current price based on time range
 const gainLossPercent = computed(() => {
   if (scheduleData.value.length === 0) return 0
   
-  // Get the oldest price (last in sorted array)
-  const oldestPrice = scheduleData.value[scheduleData.value.length - 1]?.close || 0
+  const days = parseInt(currentTimeRange.value)
+  const dataInRange = scheduleData.value.slice(0, days)
+  
+  if (dataInRange.length === 0) return 0
+  
+  // Get the oldest price in the selected range (last in sliced array)
+  const oldestPrice = dataInRange[dataInRange.length - 1]?.close || 0
   
   if (oldestPrice === 0) return 0
   

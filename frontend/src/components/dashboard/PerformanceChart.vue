@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -66,7 +66,16 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const emit = defineEmits<{
+  'update:timeRange': [value: string]
+}>()
+
 const timeRange = ref('30') // Default to month
+
+// Emit timeRange changes to parent
+watch(timeRange, (newValue) => {
+  emit('update:timeRange', newValue)
+})
 
 const filteredData = computed(() => {
   // Sort data by date (oldest first)
