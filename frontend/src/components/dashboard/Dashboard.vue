@@ -16,7 +16,7 @@
 
     <v-row>
       <v-col cols="12">
-        <CardsOverview />
+        <CardsOverview :stats="portfolioStats" />
       </v-col>
 
       <v-col>
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { PortfolioStats } from '@/types/portfolio'
 import CardsOverview from '@/components/Dashboard/StatCards/CardsOverview.vue'
 import PortfolioOverview from '@/components/Dashboard/PortfolioOverview.vue'
 import { Line } from 'vue-chartjs'
@@ -47,6 +48,14 @@ import {
 
 const isLoading = ref(true)
 const error = ref(null)
+
+const portfolioStats = ref<PortfolioStats>({
+  currentBalance: 5000.0,
+  totalInvested: 10000.0,
+  currentValue: 12500.0,
+  totalGrowth: 2500.0,
+  growthPercentage: 25.0,
+})
 
 setTimeout(() => {
   isLoading.value = false
