@@ -1,19 +1,8 @@
-import { computed, type ComputedRef } from 'vue'
+import { computed, type ComputedRef, type Ref } from 'vue'
 import type { NewsItem } from '@/types/news'
+import type { StyleValue } from 'vue'
 
-export interface SentimentStyles {
-  backgroundColor: string
-  color: string
-  border: string
-}
-
-export interface PriceImpactStyles {
-  color: string
-  borderColor: string
-  backgroundColor: string
-}
-
-export function useSentiment(news: ComputedRef<NewsItem | null> | NewsItem | null) {
+export function useSentiment(news: ComputedRef<NewsItem | null> | Ref<NewsItem | null> | Ref<NewsItem> | NewsItem | null) {
   const newsRef = computed(() => {
     if (!news) return null
     return 'value' in news ? news.value : news
@@ -57,7 +46,7 @@ export function useSentiment(news: ComputedRef<NewsItem | null> | NewsItem | nul
     }
   })
 
-  const sentimentStyle = computed((): SentimentStyles => {
+  const sentimentStyle = computed((): StyleValue => {
     const sentiment = newsRef.value?.sentiment
     if (sentiment === 'positive') {
       return { backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #86efac' }
@@ -82,7 +71,7 @@ export function useSentiment(news: ComputedRef<NewsItem | null> | NewsItem | nul
     return 'mdi-minus'
   })
 
-  const priceImpactStyle = computed((): PriceImpactStyles => {
+  const priceImpactStyle = computed((): StyleValue => {
     const impact = newsRef.value?.priceImpact || 0
     if (impact > 0) {
       return { color: '#15803d', borderColor: '#86efac', backgroundColor: 'rgba(220, 252, 231, 0.3)' }

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
+import { computed, toRef, ref } from 'vue';
 import type { NewsItem, StockDataPoint } from '@/types/news';
 import { useSentiment } from '@/composables/useSentiment';
 import { useStockChart } from '@/composables/useStockChart';
+import { usePortfolioStore } from '@/stores/portfolio';
+import TradeDialog from '@/components/TradeDialog.vue';
 
 interface Props {
   news: NewsItem | null;
@@ -13,6 +15,8 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   close: [];
 }>();
+
+const portfolioStore = usePortfolioStore();
 
 // Use composables
 const newsRef = toRef(props, 'news');
@@ -27,6 +31,25 @@ const {
 
 const { chartCanvas } = useStockChart(newsRef, stockDataRef, isPositive);
 
+// Trade dialog state
+const showTradeDialog = ref(false);
+const tradeAction = ref<'buy' | 'sell'>('buy');
+const showSuccessSnackbar = ref(false);
+const successMessage = ref('');
+
+const currentPrice = computed(() => {
+  if (props.stockData.length === 0) return 0;
+  const lastItem = props.stockData[props.stockData.length - 1];
+  return lastItem?.price || 0;
+});
+
+const ownedQuantity = computed(() => {
+  if (!props.news) return 0;
+  return portfolioStore.getStockQuantity(props.news.ticker);
+});
+
+const canSell = computed(() => ownedQuantity.value > 0);
+
 const handleClose = () => {
   emit('close');
 };
@@ -36,13 +59,29 @@ const openSource = () => {
     window.open(props.news.sourceUrl, '_blank');
   }
 };
+
+const handleBuy = () => {
+  tradeAction.value = 'buy';
+  showTradeDialog.value = true;
+};
+
+const handleSell = () => {
+  tradeAction.value = 'sell';
+  showTradeDialog.value = true;
+};
+
+const handleTradeSuccess = () => {
+  successMessage.value = `Stock purchased successfully!`;
+  showSuccessSnackbar.value = true;
+};
 </script>
 
 <template>
   <v-dialog 
     :model-value="!!news" 
     @update:model-value="handleClose"
-    max-width="500"
+    max-width="600"
+    scrollable
   >
     <v-card v-if="news" class="dialog-card">
       <v-card-title class="px-0 pt-0 pb-0">
@@ -105,6 +144,20 @@ const openSource = () => {
             <div class="chart-container">
               <canvas ref="chartCanvas"></canvas>
             </div>
+            
+            <!-- Trade Actions -->
+            <div class="mt-3">
+              <v-btn 
+                color="success" 
+                variant="flat"
+                size="small"
+                block
+                @click="handleBuy"
+              >
+                <v-icon start size="18">mdi-cart-plus</v-icon>
+                Buy Stock
+              </v-btn>
+            </div>
           </v-card>
 
           <!-- Educational Note -->
@@ -140,6 +193,30 @@ const openSource = () => {
       </v-card-text>
     </v-card>
   </v-dialog>
+
+  <!-- Trade Dialog (outside to avoid nesting issues) -->
+  <TradeDialog
+    v-if="news"
+    :show="showTradeDialog"
+    :action="tradeAction"
+    :ticker="news.ticker"
+    :current-price="currentPrice"
+    @close="showTradeDialog = false"
+    @success="handleTradeSuccess"
+  />
+
+  <!-- Success Snackbar -->
+  <v-snackbar
+    v-model="showSuccessSnackbar"
+    color="success"
+    location="top"
+    :timeout="3000"
+  >
+    <div class="d-flex align-center">
+      <v-icon start>mdi-check-circle</v-icon>
+      {{ successMessage }}
+    </div>
+  </v-snackbar>
 </template>
 
 <style scoped>

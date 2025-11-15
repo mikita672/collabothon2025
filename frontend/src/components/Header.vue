@@ -47,8 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { usePortfolioStore } from '@/stores/portfolio'
 
 interface Props {
   isLoggedIn?: boolean
@@ -63,14 +64,23 @@ const emit = defineEmits<{
 }>()
 
 const authStore = useAuthStore()
+const portfolioStore = usePortfolioStore()
 
 const displayName = computed(() => {
+  if (portfolioStore.userName && portfolioStore.userName !== 'User') return portfolioStore.userName
   if (authStore.userName) return authStore.userName
   if (authStore.userEmail) return authStore.userEmail
   return 'User'
 })
 
+onMounted(() => {
+  if (authStore.isLoggedIn) {
+    portfolioStore.subscribeToPortfolio()
+  }
+})
+
 const handleLogout = () => {
+  portfolioStore.unsubscribeFromPortfolio()
   emit('logout')
 }
 
@@ -139,7 +149,7 @@ const handlePortfolio = () => {
 }
 
 .nav-section {
-  gap: 24px;
+  gap: 16px;
 }
 
 .user-profile {
