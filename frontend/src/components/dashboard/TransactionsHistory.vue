@@ -6,7 +6,9 @@
       <v-col>
         <v-row no-gutters align="center">
           <v-card color="light-green-lighten-4 pa-1" variant="flat" rounded="lg" size="36">
-            <div class="text-green" style="font-weight: 600; font-family: afacad">BUY</div>
+            <div class="text-green my-0 mx-2" style="font-weight: 600; font-family: afacad">
+              BUY
+            </div>
           </v-card>
           <div class="text-subtitle-1 font-weight-medium ml-5" style="font-family: afacad">
             1200 shares each for $142.80
