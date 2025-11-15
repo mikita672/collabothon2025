@@ -2,8 +2,12 @@ import 'package:application/controllers/dashboard_controller.dart';
 import 'package:application/theme/app_colors.dart';
 import 'package:application/widgets/common/custom_card.dart';
 import 'package:application/widgets/dashboard/add_funds_card.dart';
+import 'package:application/widgets/dashboard/current_balance_card.dart';
 import 'package:application/widgets/dashboard/dashboard_header.dart';
 import 'package:application/widgets/dashboard/dashboard_portfolio_info.dart';
+import 'package:application/widgets/dashboard/total_invested_card.dart';
+import 'package:application/widgets/dashboard/total_return_card.dart';
+import 'package:application/widgets/dashboard/wallet_chart_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:application/services/UserService.dart';
@@ -46,14 +50,13 @@ class DashboardPage extends StatelessWidget {
             const DashboardPortfolioInfo(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: AddFundsCard(
+              child: userService.invested <= 0 ? AddFundsCard(
                 screenWidth: MediaQuery.of(context).size.width,
                 screenHeight: MediaQuery.of(context).size.height,
                 onAddFunds: () {
                   dashboardController.showFundsDialog(isAdd: true);
-                  //userService.updateBalance(100);
                 },
-              ),
+              ) : WalletChartCard(screenWidth: screenWidth, screenHeight: screenHeight),
             ),
             SizedBox(height: screenHeight * 0.02),
             Padding(
@@ -62,102 +65,15 @@ class DashboardPage extends StatelessWidget {
                 height: screenHeight * 0.2,
                 child: Row(
                   children: [
-                    Flexible(
-                      flex: 0,
-                      child: CustomCard(
-                        width: screenWidth * 0.3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Current \nBalance',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: screenWidth * 0.05,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                            Spacer(),
-                            Text(
-                              '${userService.balance}€',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: screenWidth * 0.07,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    CurrentBalanceCard(balance: userService.balance, screenWidth: screenWidth),
                     SizedBox(width: 8),
                     Flexible(
                       flex: 6,
                       child: Column(
                         children: [
-                          Expanded(
-                            child: CustomCard(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Total \nInvested',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: screenWidth * 0.05,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    Spacer(),
-                                    Text(
-                                      '${userService.invested}€',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: screenWidth * 0.07,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          TotalInvestedCard(invested: userService.invested, screenWidth: screenWidth),
                           SizedBox(height: 8),
-                          Expanded(
-                            child: CustomCard(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Total \nReturn',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: screenWidth * 0.05,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    Spacer(),
-                                    Text(
-                                      '0.00€',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: screenWidth * 0.07,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          TotalReturnCard(totalReturn: 0, screenWidth: screenWidth)
                         ],
                       ),
                     ),
