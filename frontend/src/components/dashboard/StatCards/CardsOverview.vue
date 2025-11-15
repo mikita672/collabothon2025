@@ -16,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import TotalInvestedWidget from './TotalInvestedWidget.vue'
-import CurrentValueWidget from './CurrentValueWidget.vue'
-import TotalAllocatedWidget from './CurrentBalanceWidget.vue'
-import TotalGrowthWidget from './TotalGrowthWidget.vue'
+import TotalInvestedWidget from '@/components/Dashboard/StatCards/TotalInvestedWidget.vue'
+import CurrentValueWidget from '@/components/Dashboard/StatCards/CurrentValueWidget.vue'
+import TotalAllocatedWidget from '@/components/Dashboard/StatCards/CurrentBalanceWidget.vue'
+import TotalGrowthWidget from '@/components/Dashboard/StatCards/TotalGrowthWidget.vue'
 </script>

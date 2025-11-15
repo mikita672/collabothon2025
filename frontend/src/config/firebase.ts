@@ -1,8 +1,8 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyCiDMw6RAcQLECgPvtwOEgAxaij27qDvvs",
-  authDomain: "collabothon2025-f1484.firebaseapp.com",
-  projectId: "collabothon2025-f1484",
-  storageBucket: "collabothon2025-f1484.firebasestorage.app",
-  messagingSenderId: "938406849296",
-  appId: "1:938406849296:web:8f11c2e602b8d2f0775395"
-};
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+}
