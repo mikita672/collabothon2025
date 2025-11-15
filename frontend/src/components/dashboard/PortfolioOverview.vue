@@ -1,7 +1,16 @@
 <template>
   <div>
     <v-card rounded="lg">
-      <div class="d-flex flex-column ga-3 pa-5">
+      <div v-if="loading" class="d-flex justify-center align-center pa-5">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      </div>
+      <div v-else-if="error" class="pa-5 text-center text-error">
+        {{ error }}
+      </div>
+      <div v-else-if="holdings.length === 0" class="pa-5 text-center text-medium-emphasis">
+        No holdings yet. Start investing to see your portfolio!
+      </div>
+      <div v-else class="d-flex flex-column ga-3 pa-5">
         <SingleHoldingWidget
           v-for="holding in holdings"
           :key="holding.id"
@@ -16,55 +25,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import SingleHoldingWidget from '@/components/Dashboard/SingleHoldingWidget.vue'
 import HoldingPopup from '@/components/Dashboard/HoldingPopup.vue'
+import { usePortfolioStore } from '@/stores/portfolio'
+import { PortfolioService } from '@/services/portfolio'
 import type { Holding } from '@/types/holding'
 
-const holdings = ref<Holding[]>([
-  {
-    id: '1',
-    name: 'NVIDIA Corporation',
-    ticker: 'NVDA',
-    shares: 500,
-    avgPrice: 450.0,
-    currentPrice: 495.5,
-    totalValue: 247750,
-  },
-  {
-    id: '2',
-    name: 'Microsoft Corporation',
-    ticker: 'MSFT',
-    shares: 300,
-    avgPrice: 380.0,
-    currentPrice: 405.25,
-    totalValue: 121575,
-  },
-  {
-    id: '3',
-    name: 'Apple Inc.',
-    ticker: 'AAPL',
-    shares: 1000,
-    avgPrice: 175.5,
-    currentPrice: 185.3,
-    totalValue: 185300,
-  },
-  {
-    id: '4',
-    name: 'Amazon',
-    ticker: 'AMZN',
-    shares: 1000,
-    avgPrice: 175.5,
-    currentPrice: 185.3,
-    totalValue: 185300,
-  },
-])
+const portfolioStore = usePortfolioStore()
 
+const holdings = ref<Holding[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
 const isDialogOpen = ref(false)
 const selectedHolding = ref<Holding | null>(null)
+
+const loadHoldings = async () => {
+  loading.value = true
+  error.value = null
+  
+  try {
+    const stocks = portfolioStore.stocks
+    if (stocks && stocks.length > 0) {
+      holdings.value = await PortfolioService.getHoldings(stocks)
+    } else {
+      holdings.value = []
+    }
+  } catch (err) {
+    error.value = 'Failed to load holdings'
+    console.error('Error loading holdings:', err)
+  } finally {
+    loading.value = false
+  }
+}
 
 const handleHoldingClick = (holding: Holding) => {
   selectedHolding.value = holding
   isDialogOpen.value = true
 }
+
+// Load holdings when portfolio stocks change
+watch(() => portfolioStore.stocks, loadHoldings, { deep: true })
+
+// Initial load
+onMounted(() => {
+  loadHoldings()
+})
 </script>

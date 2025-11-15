@@ -1,8 +1,29 @@
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
-import type { UserPortfolioData, PortfolioStats, Stock } from '@/types/portfolio'
+import type { UserPortfolioData, PortfolioStats, Stock, Transaction, FirebaseUserData } from '@/types/portfolio'
+import type { Holding } from '@/types/holding'
 
 export class PortfolioService {
+  // Helper method to map Firebase data (with typos) to our app structure
+  private static mapFirebaseToUserData(firebaseData: any): UserPortfolioData {
+    const stocks: Stock[] = Array.isArray(firebaseData.stocks) 
+      ? firebaseData.stocks.map((stock: any) => ({
+          ticker: stock.ticker,
+          quantity: stock.quantity,
+          purchasePrice: stock.purchacePrice || stock.purchasePrice || 0, // Handle typo
+          purchaseDate: stock.purchaceDate || stock.purchaseDate || new Date().toISOString(), // Handle typo
+        }))
+      : []
+
+    return {
+      balance: firebaseData.balance || 0,
+      invested: firebaseData.invested || 0,
+      name: firebaseData.name || 'User',
+      risk_level: firebaseData['risk-level'] || firebaseData.risk_level,
+      stocks,
+    }
+  }
+
   static async createUserPortfolio(userId: string, email: string, name?: string): Promise<void> {
     try {
       const userDocRef = doc(db, 'users', userId)
@@ -50,14 +71,8 @@ export class PortfolioService {
       const userDoc = await getDoc(userDocRef)
 
       if (userDoc.exists()) {
-        const data = userDoc.data() as UserPortfolioData
-        
-        // Ensure stocks is always an array
-        if (!data.stocks || !Array.isArray(data.stocks)) {
-          data.stocks = []
-        }
-        
-        return data
+        const firebaseData = userDoc.data()
+        return this.mapFirebaseToUserData(firebaseData)
       }
 
       return null
@@ -99,15 +114,18 @@ export class PortfolioService {
       if (existingStockIndex !== -1) {
         // Update existing stock
         const existingStock = userData.stocks[existingStockIndex]
-        const newTotalQuantity = existingStock.quantity + quantity
-        const newAveragePrice =
-          (existingStock.purchasePrice * existingStock.quantity + price * quantity) /
-          newTotalQuantity
+        if (existingStock) {
+          const newTotalQuantity = existingStock.quantity + quantity
+          const newAveragePrice =
+            (existingStock.purchasePrice * existingStock.quantity + price * quantity) /
+            newTotalQuantity
 
-        userData.stocks[existingStockIndex] = {
-          ...existingStock,
-          quantity: newTotalQuantity,
-          purchasePrice: newAveragePrice,
+          userData.stocks[existingStockIndex] = {
+            ticker: existingStock.ticker,
+            purchaseDate: existingStock.purchaseDate,
+            quantity: newTotalQuantity,
+            purchasePrice: newAveragePrice,
+          }
         }
       } else {
         // Add new stock
@@ -165,6 +183,10 @@ export class PortfolioService {
 
       const stock = userData.stocks[stockIndex]
 
+      if (!stock) {
+        return { success: false, error: 'Stock not found in portfolio' }
+      }
+
       if (stock.quantity < quantity) {
         return { success: false, error: 'Insufficient stock quantity' }
       }
@@ -178,7 +200,10 @@ export class PortfolioService {
         userData.stocks.splice(stockIndex, 1)
       } else {
         // Reduce quantity
-        userData.stocks[stockIndex].quantity -= quantity
+        const stockToUpdate = userData.stocks[stockIndex]
+        if (stockToUpdate) {
+          stockToUpdate.quantity -= quantity
+        }
       }
 
       userData.balance += totalRevenue
@@ -223,14 +248,9 @@ export class PortfolioService {
       userDocRef,
       (docSnapshot) => {
         if (docSnapshot.exists()) {
-          const data = docSnapshot.data() as UserPortfolioData
-          
-          // Ensure stocks is always an array
-          if (!data.stocks || !Array.isArray(data.stocks)) {
-            data.stocks = []
-          }
-          
-          callback(data)
+          const firebaseData = docSnapshot.data()
+          const mappedData = this.mapFirebaseToUserData(firebaseData)
+          callback(mappedData)
         } else {
           callback(null)
         }
@@ -240,5 +260,51 @@ export class PortfolioService {
         callback(null)
       },
     )
+  }
+
+  // Convert stocks to transactions for history view
+  static getTransactions(stocks: Stock[]): Transaction[] {
+    return stocks.map((stock, index) => ({
+      id: `${stock.ticker}-${stock.purchaseDate}-${index}`,
+      type: 'buy' as const,
+      ticker: stock.ticker,
+      quantity: stock.quantity,
+      price: stock.purchasePrice,
+      date: stock.purchaseDate,
+      totalValue: stock.quantity * stock.purchasePrice,
+    }))
+  }
+
+  // Convert stocks to holdings for portfolio overview
+  static async getHoldings(stocks: Stock[]): Promise<Holding[]> {
+    // In a real app, you would fetch current prices from an API
+    // For now, we'll use mock current prices
+    return stocks.map((stock, index) => {
+      const currentPrice = stock.purchasePrice * (1 + Math.random() * 0.2 - 0.1) // Mock: ±10% variation
+      return {
+        id: `${stock.ticker}-${index}`,
+        name: this.getCompanyName(stock.ticker),
+        ticker: stock.ticker,
+        shares: stock.quantity,
+        avgPrice: stock.purchasePrice,
+        currentPrice,
+        totalValue: stock.quantity * currentPrice,
+      }
+    })
+  }
+
+  // Helper to get company name from ticker (this should ideally come from an API)
+  private static getCompanyName(ticker: string): string {
+    const companyNames: Record<string, string> = {
+      NVDA: 'NVIDIA Corporation',
+      MSFT: 'Microsoft Corporation',
+      AAPL: 'Apple Inc.',
+      AMZN: 'Amazon.com Inc.',
+      GOOGL: 'Alphabet Inc.',
+      TSLA: 'Tesla Inc.',
+      META: 'Meta Platforms Inc.',
+      // Add more mappings as needed
+    }
+    return companyNames[ticker] || `${ticker} Corporation`
   }
 }
