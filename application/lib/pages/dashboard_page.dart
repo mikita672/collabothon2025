@@ -1,4 +1,5 @@
 import 'package:application/controllers/dashboard_controller.dart';
+import 'package:application/pages/risk_selection_page.dart';
 import 'package:application/theme/app_colors.dart';
 import 'package:application/widgets/common/custom_card.dart';
 import 'package:application/widgets/dashboard/add_funds_card.dart';
@@ -82,6 +83,43 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
             ),
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  child: Material(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(12),
+    child: InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const RiskSelectionPage(canPop: true),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            const Icon(Icons.settings, color: Colors.blueGrey),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Text(
+                "Change your risk tolerance",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.grey),
+          ],
+        ),
+      ),
+    ),
+  ),
+),            
           ],
         ),
       ),

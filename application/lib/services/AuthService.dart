@@ -27,7 +27,8 @@ class AuthService {
         await _firestore.collection('users').doc(user.uid).set({
           'name': name,
           'balance': 0,
-          'risk_level': 1,
+          'invested': 0,
+          'risk_level': null,
           'stocks': {},    
         });
       }

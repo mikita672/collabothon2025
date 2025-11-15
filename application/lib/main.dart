@@ -1,3 +1,4 @@
+import 'package:application/pages/app_entry_wrapper.dart';
 import 'package:application/pages/auth_page.dart';
 import 'package:application/pages/dashboard_page.dart';
 import 'package:application/pages/learning_page.dart';
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
         ),
         fontFamily: 'Afacad',
       ),
-      home: initialUser != null ? const NavigationView() : AuthPage(),
+      home: const AppEntryWrapper(),
     );
   }
 }
