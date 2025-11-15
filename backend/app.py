@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers.data import router as data_router
+from simulate import router as simulation_router
 from routers.gemini import router as gemini_router
 from routers.news import router as news_router
 from routers.news_sum_pred import router as news_sum_pred_router
@@ -19,7 +19,7 @@ app.add_middleware(
 def root():
     return {"status": "ok", "docs": "/docs"}
 # Mount routers
-app.include_router(data_router)
+app.include_router(simulation_router)
 app.include_router(gemini_router)
 app.include_router(news_router)
 app.include_router(news_sum_pred_router)
