@@ -8,6 +8,7 @@ import 'package:application/widgets/dashboard/dashboard_portfolio_info.dart';
 import 'package:application/widgets/dashboard/total_invested_card.dart';
 import 'package:application/widgets/dashboard/total_return_card.dart';
 import 'package:application/widgets/dashboard/wallet_chart_card.dart';
+import 'package:application/widgets/dashboard/wallet_growth_chart_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:application/services/UserService.dart';
@@ -56,7 +57,7 @@ class DashboardPage extends StatelessWidget {
                 onAddFunds: () {
                   dashboardController.showFundsDialog(isAdd: true);
                 },
-              ) : WalletChartCard(screenWidth: screenWidth, screenHeight: screenHeight),
+              ) : WalletChartGrowthCard(screenWidth: screenWidth, screenHeight: screenHeight),
             ),
             SizedBox(height: screenHeight * 0.02),
             Padding(
