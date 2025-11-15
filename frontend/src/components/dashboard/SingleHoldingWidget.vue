@@ -1,5 +1,5 @@
 <template>
-  <v-card class="holding-card pa-0" elevation="0" @click="$emit('click', holding)">
+  <v-card class="holding-card pa-3" elevation="0" @click="handleClick">
     <div class="d-flex align-center justify-space-between" style="gap: 12px">
       <div class="d-flex align-center" style="gap: 12px">
         <v-avatar
@@ -22,13 +22,15 @@
         </div>
       </div>
 
-      <div class="text-right">
-        <div class="value-text">{{ formatCurrency(holding.totalValue) }}</div>
-        <div :class="['percentage-text', percentageClass]">
-          <v-icon size="14" class="mr-1">{{
-            isPositive ? 'mdi-trending-up' : 'mdi-trending-down'
-          }}</v-icon>
-          {{ formattedPercentage }}
+      <div class="d-flex align-center" style="gap: 12px">
+        <div class="text-right">
+          <div class="value-text">{{ formatCurrency(holding.totalValue) }}</div>
+          <div :class="['percentage-text', percentageClass]">
+            <v-icon size="14" class="mr-1">{{
+              isPositive ? 'mdi-trending-up' : 'mdi-trending-down'
+            }}</v-icon>
+            {{ formattedPercentage }}
+          </div>
         </div>
       </div>
     </div>
@@ -55,9 +57,8 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{
-  click: [holding: Holding]
-}>()
+
+const emit = defineEmits(['click'])
 
 const iconMap: Record<string, { icon: string; color: string }> = {
   AMZN: { icon: amazonIcon, color: '#666666' },
@@ -94,6 +95,10 @@ const formatShares = (n: number) => {
 
 const formatCurrency = (n: number) => {
   return n.toLocaleString(undefined, { style: 'currency', currency: 'USD' })
+}
+
+const handleClick = () => {
+  emit('click', props.holding)
 }
 </script>
 
