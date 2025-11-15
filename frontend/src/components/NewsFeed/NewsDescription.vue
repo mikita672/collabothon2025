@@ -94,7 +94,7 @@ onUnmounted(() => {
               class="px-0 link-button font-weight-bold"
               @click="openSource"
             >
-              Read original source
+              Read original source  
               <v-icon end size="14">mdi-open-in-new</v-icon>
             </v-btn>
           </div>

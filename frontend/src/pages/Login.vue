@@ -83,21 +83,8 @@
 
                 <!-- QR Code Actions -->
                 <template v-else>
-                  <!-- Scan button / Waiting state -->
+                  <!-- Waiting state -->
                   <v-btn
-                    v-if="!isChecking"
-                    @click="handleStartChecking"
-                    size="small"
-                    color="#002e3d"
-                    block
-                    class="mb-2  text-none"
-                    height="40"
-                  >
-                    <v-icon size="18" class="mr-1">mdi-qrcode-scan</v-icon>
-                    I've Scanned the Code
-                  </v-btn>
-                  <v-btn
-                    v-else
                     disabled
                     size="small"
                     block
@@ -105,7 +92,7 @@
                     height="40"
                   >
                     <v-icon size="18" class="mr-1 rotating">mdi-loading</v-icon>
-                    Waiting for authentication...
+                    Waiting for QR scan...
                   </v-btn>
 
                   <!-- Refresh QR Code -->
