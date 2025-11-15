@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.application"
+    namespace = "com.collabothon2025.application"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.application"
+        applicationId = "com.collabothon2025.application"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -42,3 +42,16 @@ android {
 flutter {
     source = "../.."
 }
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.1.1")
+        classpath("com.google.gms:google-services:4.4.0")
+    }
+}
+
+apply(plugin = "com.google.gms.google-services")
