@@ -24,7 +24,7 @@ class AddFundsCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Icon(LucideIcons.wallet, size: screenWidth * 0.13, color: Colors.grey,),
+            child: Icon(LucideIcons.wallet, size: screenWidth * 0.1, color: Colors.grey,),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -33,7 +33,7 @@ class AddFundsCard extends StatelessWidget {
                 'Start Your Investment Journey',
                 style: TextStyle(
                   color: AppColors.primary,
-                  fontSize: screenWidth * 0.05,
+                  fontSize: screenWidth * 0.043,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
@@ -44,7 +44,7 @@ class AddFundsCard extends StatelessWidget {
                   'Add funds to your account and let our AI bot start investing based on your risk tolerance',
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: screenWidth * 0.045,
+                    fontSize: screenWidth * 0.04,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -54,19 +54,19 @@ class AddFundsCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
             child: SizedBox(
-              width: screenWidth * 0.5,
+              width: screenWidth * 0.4,
               child: ElevatedButton(
                 onPressed: onAddFunds,
                 style: AppButtons.primary(
                   background: AppColors.accent,
                   textColor: AppColors.primary,
                   radius: 15,
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.012),
+                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
                 ),
                 child: Text(
                   "Add Funds Now",
                   style: TextStyle(
-                    fontSize: screenWidth * 0.06,
+                    fontSize: screenWidth * 0.045,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
