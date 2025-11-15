@@ -90,3 +90,69 @@ def load_fund_data(ticker: str, data_dir: Optional[Path] = None) -> Dict[str, an
         "count": len(data_map),
         "source_file": str(file_path),
     }
+
+def load_latest_value(ticker: str, data_dir: Optional[Path] = None) -> Optional[float]:
+    t_clean = ticker.upper().strip()
+    if data_dir is None:
+        data_dir = Path(__file__).parent.parent.parent / "data"
+    file_path = data_dir / f"FundData_{t_clean}.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"CSV not found: {file_path}")
+
+    with file_path.open("r", encoding="utf-8-sig") as f:
+        sample = f.read(2048)
+        f.seek(0)
+        try:
+            dialect = csv.Sniffer().sniff(sample)
+        except Exception:
+            dialect = csv.excel
+        reader = csv.reader(f, dialect)
+        rows = list(reader)
+
+    if not rows:
+        return None
+
+    header = [h.strip() for h in rows[0]]
+    data_rows = rows[1:]
+
+    # Найдём индекс даты и индекс числовой колонки
+    date_idx = None
+    for i, name in enumerate(header):
+        if "date" in name.lower():
+            date_idx = i
+            break
+    if date_idx is None:
+        date_idx = 0
+
+    value_idx = None
+    for i, name in enumerate(header):
+        if i == date_idx:
+            continue
+        # проверим несколько строк, что колонка числовая
+        for r in data_rows[:5]:
+            if i < len(r):
+                try:
+                    float((r[i] or "").replace(",", ""))
+                    value_idx = i
+                    break
+                except Exception:
+                    pass
+        if value_idx is not None:
+            break
+    if value_idx is None:
+        value_idx = 1 if len(header) > 1 else date_idx
+
+    last_value: Optional[float] = None
+    for r in data_rows:
+        if len(r) <= value_idx:
+            continue
+        raw = (r[value_idx] or "").strip()
+        if not raw:
+            continue
+        try:
+            val = float(raw.replace(",", ""))
+        except Exception:
+            continue
+        last_value = val  # берем последнее валидное в файле
+
+    return last_value
