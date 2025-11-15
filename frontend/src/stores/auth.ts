@@ -7,9 +7,11 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const userName = ref<string>('')
 
   const isLoggedIn = computed(() => !!user.value)
   const userEmail = computed(() => user.value?.email || '')
+  const userId = computed(() => user.value?.uid || '')
 
   // Initialize auth state listener
   const initializeAuth = () => {
@@ -94,17 +96,25 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
+  // Set user name
+  const setUserName = (name: string) => {
+    userName.value = name
+  }
+
   return {
     user,
     loading,
     error,
+    userName,
     isLoggedIn,
     userEmail,
+    userId,
     initializeAuth,
     register,
     login,
     loginWithGoogle,
     logout,
-    clearError
+    clearError,
+    setUserName
   }
 })

@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { PortfolioStats } from '@/types/portfolio'
+import { usePortfolioData } from '@/composables/usePortfolioData'
 import CardsOverview from '@/components/Dashboard/StatCards/CardsOverview.vue'
 import PortfolioOverview from '@/components/Dashboard/PortfolioOverview.vue'
 import { Line } from 'vue-chartjs'
@@ -46,20 +46,8 @@ import {
   Filler,
 } from 'chart.js'
 
-const isLoading = ref(true)
-const error = ref(null)
-
-const portfolioStats = ref<PortfolioStats>({
-  currentBalance: 5000.0,
-  totalInvested: 10000.0,
-  currentValue: 12500.0,
-  totalGrowth: 2500.0,
-  growthPercentage: 25.0,
-})
-
-setTimeout(() => {
-  isLoading.value = false
-}, 2000)
+// Fetch portfolio data from Firestore
+const { portfolioStats, isLoading, error } = usePortfolioData()
 
 ChartJS.register(
   Title,

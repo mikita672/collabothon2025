@@ -19,7 +19,7 @@
                 <v-icon color="white" size="22">mdi-account</v-icon>
               </div>
               <div class="user-details d-none d-sm-flex">
-                <span class="user-name">John Doe</span>
+                <span class="user-name">{{ displayName }}</span>
               </div>
               <v-icon color="#ffffff" size="18" class="ml-2">mdi-chevron-down</v-icon>
             </div>
@@ -51,6 +51,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
 interface Props {
   isLoggedIn?: boolean;
 }
@@ -62,6 +65,15 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   logout: [];
 }>();
+
+const authStore = useAuthStore()
+
+// Display user name from store, or fallback to email or default
+const displayName = computed(() => {
+  if (authStore.userName) return authStore.userName
+  if (authStore.userEmail) return authStore.userEmail
+  return 'User'
+})
 
 const handleLogout = () => {
   emit('logout');
