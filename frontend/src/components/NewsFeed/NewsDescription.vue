@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { computed, watch, onUnmounted } from 'vue';
+import { computed, toRef } from 'vue';
 import type { NewsItem, StockDataPoint } from '@/types/news';
-import { useChartDrawing } from '@/composables/useChartDrawing';
-
-let chartInstance: any = null;
-const { chartCanvas, drawChart } = useChartDrawing();
-
-const isPositive = computed(() => props.news?.sentiment === 'positive');
+import { useSentiment } from '@/composables/useSentiment';
+import { useStockChart } from '@/composables/useStockChart';
 
 interface Props {
   news: NewsItem | null;
@@ -18,6 +14,19 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+// Use composables
+const newsRef = toRef(props, 'news');
+const stockDataRef = toRef(props, 'stockData');
+
+const {
+  isPositive,
+  sentimentClass,
+  priceImpactClass,
+  priceImpactIcon: trendIcon,
+} = useSentiment(newsRef);
+
+const { chartCanvas } = useStockChart(newsRef, stockDataRef, isPositive);
+
 const handleClose = () => {
   emit('close');
 };
@@ -27,18 +36,6 @@ const openSource = () => {
     window.open(props.news.sourceUrl, '_blank');
   }
 };
-
-watch(() => props.news, (newNews) => {
-  if (newNews && chartCanvas.value && props.stockData.length > 0) {
-    drawChart(chartCanvas.value, props.stockData, isPositive.value);
-  }
-}, { immediate: true });
-
-onUnmounted(() => {
-  if (chartInstance) {
-    chartInstance = null;
-  }
-});
 </script>
 
 <template>
@@ -64,7 +61,7 @@ onUnmounted(() => {
             <v-chip 
               size="small"
               style="font-family: Afacad; color: #002e3c"
-              :class="isPositive ? 'sentiment-positive' : 'sentiment-negative'"
+              :class="sentimentClass"
               class="badge-text"
             >
               {{ news.sentiment }}
@@ -72,13 +69,13 @@ onUnmounted(() => {
             <v-chip 
               size="small"
               variant="outlined"
-              :class="isPositive ? 'price-positive' : 'price-negative'"
+              :class="priceImpactClass"
               class="badge-text"
             >
               <v-icon 
                 start
-                :icon="isPositive ? 'mdi-trending-up' : 'mdi-trending-down'" 
-                size="12  "
+                :icon="trendIcon" 
+                size="12"
               ></v-icon>
               {{ news.priceImpact > 0 ? '+' : '' }}{{ news.priceImpact }}% price impact
             </v-chip>
@@ -87,8 +84,9 @@ onUnmounted(() => {
           <!-- Summary -->
           <div class="mb-4">
             <h3 class="text-body-6 font-weight-bold mb-2" style="font-family: Afacad; color: #002e3c">Summary</h3>
-            <p class="text-h6 text-grey-darken-1 mb-3" style="line-height: 1.5; font-family: Afacad; color: #002e3c">{{ news.summary }}</p>
+            <p class="text-h6 text-grey-darken-1 mb-3" style="line-height: 1.5; font-family: Afacad; color: #002e3c; white-space: pre-wrap;">{{ news.summary }}</p>
             <v-btn 
+              v-if="news.sourceUrl"
               variant="text" 
               color="primary"
               class="px-0 link-button font-weight-bold"
@@ -122,7 +120,7 @@ onUnmounted(() => {
                 <h3 class="text-body-1 font-weight-bold mb-1" style="line-height: 1.5; font-family: Afacad; color: #002e3c">
                   Why This Matters
                 </h3>
-                <p class="text-body-2" style="line-height: 1.4;">
+                <p class="text-body-2" style="line-height: 1.4; font-family: Afacad; color: #002e3c">
                   {{ news.educationalNote }}
                 </p>
               </div>
@@ -177,6 +175,11 @@ onUnmounted(() => {
   color: #991b1b !important;
 }
 
+.sentiment-neutral {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
 .price-positive {
   color: #15803d !important;
   border-color: #86efac !important;
@@ -185,6 +188,11 @@ onUnmounted(() => {
 .price-negative {
   color: #991b1b !important;
   border-color: #fca5a5 !important;
+}
+
+.price-neutral {
+  color: #6b7280 !important;
+  border-color: #d1d5db !important;
 }
 
 .link-button {
