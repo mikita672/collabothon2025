@@ -1,3 +1,4 @@
+import re
 import datetime as dt
 import hashlib
 import requests
@@ -39,6 +40,7 @@ TICKER_COMPANIES: Dict[str, str] = {
     "COIN": "Coinbase",
     "RIOT": "Riot Platforms",
 }
+
 SOURCE_WHITELIST = {
     s.lower(): s for s in [
         "Observer",
@@ -62,8 +64,42 @@ SOURCE_WHITELIST = {
         "Barchart.com",
     ]
 }
+
 NON_FINANCE_EXCLUDE = [
+    "recipe", "recipes", "horoscope", "celebrity", "gossip", "fashion",
+    "movie review", "tv", "television", "entertainment", "sports score",
+    "sports scores", "traffic", "local news", "weather", "concert",
+    "beauty", "lifestyle", "dating", "puzzle", "crossword", "opinion",
+    "op-ed", "editorial", "press release", "sponsored", "advertisement",
+    "giveaway", "contest", "travel", "recipes", "league "
 ]
+
+# Позитивні фінансові маркери
+FINANCE_KEYWORDS = [
+    "stock", "stocks", "share", "shares", "share price",
+    "earnings", "results", "q1", "q2", "q3", "q4", "quarter",
+    "revenue", "sales", "profit", "net income", "loss",
+    "guidance", "forecast", "outlook",
+    "dividend", "payout", "yield",
+    "buyback", "repurchase",
+    "valuation", "market cap", "market capitalization",
+    "ipo", "initial public offering",
+    "bond", "debt", "credit rating",
+    "funding round", "series a", "series b", "series c",
+    "merger", "acquisition", "m&a", "takeover", "deal",
+    "analyst", "price target", "pt raised", "pt cut",
+    "upgrade", "downgrade", "overweight", "underweight",
+    "overperform", "underperform", "neutral rating",
+    "regulator", "sec filing", "10-k", "10-q", "8-k",
+    "guidance raised", "guidance cut",
+    "trading", "pre-market", "after-hours",
+    "rally", "selloff", "plunge", "surge", "soars", "slumps"
+]
+
+# Патерни для грошей/відсотків: $123, 3.5%, 10 billion, 500m тощо
+MONEY_OR_PERCENT_PATTERN = re.compile(
+    r"(\$[\d.,]+)|(\b\d+(\.\d+)?\s*(%|percent|percentage)\b)|(\b\d+(\.\d+)?\s*(billion|million|bn|m)\b)"
+)
 
 def _hash_id(source_url: str) -> str:
     return hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:24]
@@ -73,15 +109,32 @@ def _chunks(items: List[str], size: int) -> Iterable[List[str]]:
         yield items[i:i+size]
 
 def _looks_financial(title: str, desc: str, content: str) -> bool:
+    """
+    Повертає True, якщо текст схожий на фінансову новину:
+    1) НЕ містить явно нефінансових ключових слів (NON_FINANCE_EXCLUDE)
+    2) МІСТИТЬ хоча б один фінансовий маркер (FINANCE_KEYWORDS або MONEY_OR_PERCENT_PATTERN)
+    """
     text = f"{title} {desc} {content}".lower()
-    has_non_fin = any(k in text for k in (kw.lower() for kw in NON_FINANCE_EXCLUDE))
-    return not has_non_fin
+
+    # 1. Явне відсікання нефінансового контенту
+    for bad in NON_FINANCE_EXCLUDE:
+        if bad in text:
+            return False
+
+    # 2. Позитивні фінансові ключові слова
+    has_fin_keyword = any(fin_kw in text for fin_kw in FINANCE_KEYWORDS)
+
+    # 3. Патерни грошей/відсотків/великих сум
+    has_money_pattern = bool(MONEY_OR_PERCENT_PATTERN.search(text))
+
+    # Новина вважається фінансовою, якщо є хоча б один позитивний маркер
+    return bool(has_fin_keyword or has_money_pattern)
 
 def fetch_financial_news(
     tickers: List[str],
     days: int = 1,
     language: str = "en",
-    max_per_ticker: int = 30,
+    max_per_ticker: int = 1,
     dedup: bool = True,
     use_model: int = 0,
 ) -> List[Dict[str, Any]]:
@@ -127,8 +180,10 @@ def fetch_financial_news(
             desc = art.get("description") or ""
             content = art.get("content") or ""
 
+            # ← тепер це реально відсікає нефінансові новини
             if not _looks_financial(title, desc, content):
-                continue            
+                continue
+
             combined = f"{title}. {desc} {content}"
 
             # Определяем связанные тикеры по вхождению названий
@@ -143,11 +198,13 @@ def fetch_financial_news(
                 continue  # фильтруем нерелевантные
 
             raw_source = art.get("source", {}).get("name") or ""
-            
+
             if raw_source.lower() not in SOURCE_WHITELIST:
                 continue
+
             timestamp = art.get("publishedAt") or end.isoformat() + "Z"
             main_ticker = related[0]
+
             if use_model > 0:
                 try:
                     pred = news_prediction(combined)
@@ -160,14 +217,15 @@ def fetch_financial_news(
                 try:
                     summary_val = summarize_text(
                         article_text=combined,
-                        )
+                    )
                 except Exception:
-                    summary_val = desc or title            
+                    summary_val = desc or title
                 use_model = use_model - 1
             else:
                 price_expl = "No data"
-                price_score = float(0.0)  
+                price_score = float(0.0)
                 summary_val = desc or title
+
             item = {
                 "id": _hash_id(url or title + timestamp),
                 "title": title,

@@ -108,7 +108,7 @@ def news_prediction(
         "   +10 = extremely strong positive impact.\n"
         "\n"
         "Very important:\n"
-        "- Focus on short-term price impact (from a few hours up to several days).\n"
+        "- For demonstration purposes never give impact score 0. Always ruturn at lest some opinion about posible impact\n"
         "- Base your reasoning ONLY on the information in the article and general market logic.\n"
         "- Do NOT give trading advice like \"buy\", \"sell\" or \"hold\".\n"
         "- Answer STRICTLY in valid JSON with double quotes and no extra text before or after the JSON.\n"
