@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from simulate import router as simulation_router
+from routers.simulate import router as simulation_router
 from routers.gemini import router as gemini_router
 from routers.news import router as news_router
 from routers.news_sum_pred import router as news_sum_pred_router
