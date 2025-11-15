@@ -1,16 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 import type { NewsItem } from '@/types/news';
-import { getSentimentIcon, getSentimentColor, getSentimentBadgeClass } from '@/utils/sentiment';
+import { useSentiment } from '@/composables/useSentiment';
 import { formatTimeAgo } from '@/utils/formatters';
-
-const sentimentIcon = computed(() => getSentimentIcon(props.news.sentiment));
-const sentimentColor = computed(() => getSentimentColor(props.news.sentiment));
-const sentimentBadgeClass = computed(() => getSentimentBadgeClass(props.news.sentiment));
-const formattedTime = computed(() => formatTimeAgo(props.news.timestamp));
-const priceImpactClass = computed(() => {
-  return props.news.priceImpact > 0 ? 'price-positive' : 'price-negative';
-});
 
 interface Props {
   news: NewsItem;
@@ -21,6 +13,19 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   click: [news: NewsItem];
 }>();
+
+// Use sentiment composable
+const newsRef = toRef(props, 'news');
+const {
+  sentimentIcon,
+  sentimentColor,
+  sentimentStyle,
+  priceImpactIcon,
+  priceImpactStyle,
+} = useSentiment(newsRef);
+
+// Time formatting
+const formattedTime = computed(() => formatTimeAgo(props.news.timestamp));
 
 const handleClick = () => {
   emit('click', props.news);
@@ -48,7 +53,7 @@ const handleClick = () => {
 
       <!-- Content -->
       <div class="flex-grow-1" style="min-width: 0;">
-        <div class="text-body-1 text-grey-darken-4 mb-2 text-h5 ">
+        <div class="text-body-1 text-grey-darken-4 mb-2 text-h5">
           {{ news.title }}
         </div>
 
@@ -64,8 +69,9 @@ const handleClick = () => {
 
           <!-- Sentiment Badge -->
           <v-chip 
+            :key="`sentiment-${news.id}-${news.sentiment}`"
             size="x-small"
-            :class="sentimentBadgeClass"
+            :style="sentimentStyle"
             class="badge-text text-h5 font-weight-bold text-center"
           >
             {{ news.sentiment }}
@@ -74,11 +80,17 @@ const handleClick = () => {
           <!-- Price Impact Badge -->
           <v-chip 
             v-if="news.priceImpact !== 0"
+            :key="`price-${news.id}-${news.priceImpact}`"
             size="x-small"
             variant="outlined"
-            :class="priceImpactClass"
+            :style="priceImpactStyle"
             class="badge-text text-h5 font-weight-bold text-center"
           >
+            <v-icon 
+              start
+              :icon="priceImpactIcon" 
+              size="10"
+            ></v-icon>
             {{ news.priceImpact > 0 ? '+' : '' }}{{ news.priceImpact }}%
           </v-chip>
 
@@ -115,25 +127,36 @@ const handleClick = () => {
 .sentiment-positive {
   background-color: #dcfce7 !important;
   color: #15803d !important;
+  border: 1px solid #86efac !important;
 }
 
 .sentiment-negative {
   background-color: #fee2e2 !important;
   color: #991b1b !important;
+  border: 1px solid #fca5a5 !important;
 }
 
 .sentiment-neutral {
   background-color: #f3f4f6 !important;
   color: #374151 !important;
+  border: 1px solid #d1d5db !important;
 }
 
 .price-positive {
   color: #15803d !important;
   border-color: #86efac !important;
+  background-color: rgba(220, 252, 231, 0.3) !important;
 }
 
 .price-negative {
   color: #991b1b !important;
   border-color: #fca5a5 !important;
+  background-color: rgba(254, 226, 226, 0.3) !important;
+}
+
+.price-neutral {
+  color: #6b7280 !important;
+  border-color: #d1d5db !important;
+  background-color: rgba(243, 244, 246, 0.3) !important;
 }
 </style>

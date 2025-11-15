@@ -21,9 +21,12 @@ export function useChartDrawing() {
     canvas.style.height = '200px'
     ctx.scale(dpr, dpr)
 
-    const padding = 50
-    const width = rect.width - padding * 2
-    const height = 200 - padding * 2
+    const paddingLeft = 50
+    const paddingRight = 20
+    const paddingTop = 20
+    const paddingBottom = 30
+    const width = rect.width - paddingLeft - paddingRight
+    const height = 200 - paddingTop - paddingBottom
 
     const prices = stockData.map((d) => d.price)
     const minPrice = Math.min(...prices) - 10
@@ -32,15 +35,17 @@ export function useChartDrawing() {
 
     ctx.clearRect(0, 0, rect.width, 200)
 
-    drawGridLines(ctx, padding, width, height, rect.width)
-    drawXAxisLabels(ctx, stockData, padding, width)
-    drawYAxisLabels(ctx, padding, height, maxPrice, priceRange)
-    drawPriceLine(ctx, stockData, padding, width, height, minPrice, priceRange, isPositive)
+    drawGridLines(ctx, paddingLeft, paddingRight, paddingTop, width, height, rect.width)
+    drawXAxisLabels(ctx, stockData, paddingLeft, paddingBottom, width, height)
+    drawYAxisLabels(ctx, paddingLeft, paddingTop, height, maxPrice, priceRange)
+    drawPriceLine(ctx, stockData, paddingLeft, paddingTop, width, height, minPrice, priceRange, isPositive)
   }
 
   const drawGridLines = (
     ctx: CanvasRenderingContext2D,
-    padding: number,
+    paddingLeft: number,
+    paddingRight: number,
+    paddingTop: number,
     width: number,
     height: number,
     canvasWidth: number,
@@ -49,10 +54,10 @@ export function useChartDrawing() {
     ctx.lineWidth = 1
 
     for (let i = 0; i <= 4; i++) {
-      const y = padding + (height / 4) * i
+      const y = paddingTop + (height / 4) * i
       ctx.beginPath()
-      ctx.moveTo(padding, y)
-      ctx.lineTo(canvasWidth - padding, y)
+      ctx.moveTo(paddingLeft, y)
+      ctx.lineTo(canvasWidth - paddingRight, y)
       ctx.stroke()
     }
   }
@@ -60,8 +65,10 @@ export function useChartDrawing() {
   const drawXAxisLabels = (
     ctx: CanvasRenderingContext2D,
     stockData: StockDataPoint[],
-    padding: number,
+    paddingLeft: number,
+    paddingBottom: number,
     width: number,
+    height: number,
   ) => {
     ctx.fillStyle = '#6b7280'
     ctx.font = '11px system-ui'
@@ -69,16 +76,17 @@ export function useChartDrawing() {
 
     stockData.forEach((point, index) => {
       if (index % Math.ceil(stockData.length / 5) === 0) {
-        const x = padding + (width / (stockData.length - 1)) * index
+        const x = paddingLeft + (width / (stockData.length - 1)) * index
         const date = new Date(point.date)
-        ctx.fillText(`${date.getMonth() + 1}/${date.getDate()}`, x, 200 - 8)
+        ctx.fillText(`${date.getMonth() + 1}/${date.getDate()}`, x, 200 - paddingBottom + 20)
       }
     })
   }
 
   const drawYAxisLabels = (
     ctx: CanvasRenderingContext2D,
-    padding: number,
+    paddingLeft: number,
+    paddingTop: number,
     height: number,
     maxPrice: number,
     priceRange: number,
@@ -88,16 +96,17 @@ export function useChartDrawing() {
     ctx.textAlign = 'right'
 
     for (let i = 0; i <= 4; i++) {
-      const y = padding + (height / 4) * i
+      const y = paddingTop + (height / 4) * i
       const price = maxPrice - (priceRange / 4) * i
-      ctx.fillText('$' + price.toFixed(0), padding - 10, y + 4)
+      ctx.fillText('$' + price.toFixed(0), paddingLeft - 10, y + 4)
     }
   }
 
   const drawPriceLine = (
     ctx: CanvasRenderingContext2D,
     stockData: StockDataPoint[],
-    padding: number,
+    paddingLeft: number,
+    paddingTop: number,
     width: number,
     height: number,
     minPrice: number,
@@ -109,8 +118,8 @@ export function useChartDrawing() {
     ctx.beginPath()
 
     stockData.forEach((point, index) => {
-      const x = padding + (width / (stockData.length - 1)) * index
-      const y = padding + height - ((point.price - minPrice) / priceRange) * height
+      const x = paddingLeft + (width / (stockData.length - 1)) * index
+      const y = paddingTop + height - ((point.price - minPrice) / priceRange) * height
 
       if (index === 0) {
         ctx.moveTo(x, y)

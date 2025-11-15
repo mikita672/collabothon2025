@@ -1,3 +1,11 @@
+export interface Stock {
+  ticker: string
+  quantity: number
+  purchasePrice: number
+  purchaseDate: string
+  currentPrice?: number
+}
+
 export interface PortfolioStats {
   currentBalance: number
   totalInvested: number
@@ -11,4 +19,13 @@ export interface UserPortfolioData {
   invested: number
   name: string
   risk_level?: string
+  stocks: Stock[]
+}
+
+export interface TradeAction {
+  type: 'buy' | 'sell'
+  ticker: string
+  quantity: number
+  price: number
+  total: number
 }
