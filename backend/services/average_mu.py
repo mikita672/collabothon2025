@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Sequence, Optional, Literal
+import math
 
 def compute_average(nums: Sequence[float]) -> Optional[float]:
     if not nums:
@@ -17,6 +18,7 @@ def simulate_price_series(
     nu: int = 5,
     clip_limit: float = 0.05,
     seed: Optional[int] = None,
+    trend: Literal["standard", "up", "down"] = "standard",
 ) -> np.ndarray:
 
     
@@ -24,6 +26,12 @@ def simulate_price_series(
 
     mu_step = mu_daily / n_steps
     sigma_step = sigma_daily / np.sqrt(n_steps)
+
+    trend_log_step = math.log(1.0 + 0.0025)
+    if trend == "up":
+        mu_step += trend_log_step
+    elif trend == "down":
+        mu_step -= trend_log_step
 
     # draw all noises at once (heavy-tailed), clip extremes
     eps = rng.standard_t(df=nu, size=n_steps) * sigma_step
@@ -39,8 +47,9 @@ def simulate_price_series(
     else:
         change_rate = (price[-1] - P0) / P0
 
+    prices = price.tolist()
     return {
-        "prices": price,
+        "prices": prices,
         "final_price": price[-1],
         "change_rate": change_rate
     }
