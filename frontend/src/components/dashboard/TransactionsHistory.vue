@@ -30,7 +30,9 @@
       </p>
     </v-sheet>
 
-    <div class="text-subtitle-1 text-right font-weight-medium mt-4">Total value: $171 360</div>
+    <div class="text-subtitle-1 text-right font-weight-medium mt-4" style="font-family: afacad">
+      Total value: $171 360
+    </div>
   </v-card>
 </template>
 
