@@ -3,21 +3,10 @@ from pathlib import Path
 from typing import Dict, Optional
 
 def load_fund_data(ticker: str, data_dir: Optional[Path] = None) -> Dict[str, any]:
-    """
-    Читает backend/data/FundData_{TICKER}.csv и возвращает:
-    {
-      "ticker": "TICKER",
-      "data": { "date": float_value, ... },
-      "count": N
-    }
-    Формат CSV гибкий:
-      - Определяем колонку даты (имя содержит 'date')
-      - Берём первую числовую колонку для значения.
-    """
     t_clean = ticker.upper().strip()
     if data_dir is None:
         # Папка data рядом с backend/
-        data_dir = Path(__file__).parent.parent / "data"
+        data_dir = Path(__file__).parent.parent.parent / "data"
     file_path = data_dir / f"FundData_{t_clean}.csv"
     if not file_path.exists():
         raise FileNotFoundError(f"CSV not found: {file_path}")
