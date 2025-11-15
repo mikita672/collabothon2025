@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getDatabase } from 'firebase/database'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -9,9 +10,11 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_APP_ID,
+  databaseURL: import.meta.env.VITE_DATABASE_URL,
 }
 
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
+export const database = getDatabase(app)
 export const db = getFirestore(app)
 export default app
