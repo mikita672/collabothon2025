@@ -1,7 +1,7 @@
 from typing import List, Literal, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from services.average_mu import compute_average, generate_student_t_graph
+from services.average_mu import compute_average, simulate_price_series
 
 router = APIRouter(tags=["averages"])
 
@@ -15,53 +15,49 @@ def average_endpoint(body: PricesPayload):
         raise HTTPException(status_code=400, detail="Empty prices")
     return {"average": avg}
 
-@router.post("/graph/{symbol}")
-def graph_symbol(
+@router.post("/simulate/{symbol}")
+def simulate_symbol(
     symbol: str,
-    body: PricesPayload,
-    points: int = Query(50, ge=1, le=1_000_000),
-    df: int = Query(5, ge=1, le=200),
-    scale: float = Query(1.0, gt=0),
-    trend: Literal["flat", "up", "down", "random"] = Query("flat"),
-    drift: float = Query(0.0),
-    shock_prob: float = Query(0.0, ge=0.0, le=1.0),
-    shock_scale: float = Query(3.0, gt=0.0),
+    price: float,
+    mu_daily: float = Query(0.0005),
+    sigma_daily: float = Query(0.02, gt=0),
+    n_steps: int = Query(390, ge=1, le=1_000_000),
+    nu: int = Query(5, ge=1, le=200),
+    clip_limit: float = Query(0.05, gt=0),
+    useStartP0: bool = Query(False),
+    startP0: float = Query(100.0, gt=0),
     seed: Optional[int] = Query(None),
-    ma_window: int = Query(10, ge=1, le=10_000),
-    use_ema: bool = Query(False),
-    ema_alpha: float = Query(0.2, gt=0.0, lt=1.0),
+    trend: Literal["standard", "up", "down"] = Query("standard"),
 ):
-    res = generate_student_t_graph(
-        body.prices,
-        points=points,
-        df=df,
-        scale=scale,
-        trend=trend,
-        drift=drift,
-        shock_prob=shock_prob,
-        shock_scale=shock_scale,
-        seed=seed,
-        ma_window=ma_window,
-        use_ema=use_ema,
-        ema_alpha=ema_alpha,
-    )
-    if res["average"] is None:
-        raise HTTPException(status_code=400, detail="Empty prices")
+    try:
+        res = simulate_price_series(
+            P0=price,
+            mu_daily=mu_daily,
+            sigma_daily=sigma_daily,
+            useStartP0=useStartP0,
+            startP0=startP0,
+            n_steps=n_steps,
+            nu=nu,
+            clip_limit=clip_limit,
+            seed=seed,
+            trend=trend,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return {
         "symbol": symbol.upper(),
-        "average": res["average"],
-        "y": res["y"],
+        "final_price": res["final_price"],
+        "change_rate": res["change_rate"],
+        "prices": res["prices"],
         "params": {
-            "points": points,
-            "df": df,
-            "scale": scale,
-            "trend": trend,
-            "drift": drift,
-            "shock_prob": shock_prob,
-            "shock_scale": shock_scale,
+            "mu_daily": mu_daily,
+            "sigma_daily": sigma_daily,
+            "n_steps": n_steps,
+            "nu": nu,
+            "clip_limit": clip_limit,
+            "useStartP0": useStartP0,
+            "startP0": startP0,
             "seed": seed,
-            "ma_window": ma_window,
-            "use_ema": use_ema,
-            "ema_alpha": ema_alpha,
+            "trend": trend
         },
     }
