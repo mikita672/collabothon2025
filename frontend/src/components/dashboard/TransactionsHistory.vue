@@ -73,7 +73,6 @@ const loadTransactions = async () => {
     const stocks = portfolioStore.stocks
     if (stocks && stocks.length > 0) {
       const allTransactions = PortfolioService.getTransactions(stocks)
-      // Sort by date, most recent first
       transactions.value = allTransactions.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       )

@@ -13,6 +13,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const simulationData = ref<PortfolioSimulation | null>(null)
+  const portfolioSeries = ref<number[]>([])
   const isSimulationActive = ref(false)
   const simulationTimer = ref<any>(null)
   const simulationStartTime = ref<Date | null>(null)
@@ -180,11 +181,13 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       isSimulationActive.value = true
       simulationStartTime.value = new Date()
       simulationStepCount.value = 0
+      portfolioSeries.value = []
 
       const request = createSimulationRequest()
 
+      portfolioSeries.value.push(request.portfolio_start)
+
       await updateSimulationStep(request)
-      console.log('✅ Initial simulation step complete, data:', simulationData.value)
 
       if (simulationTimer.value) clearInterval(simulationTimer.value)
       simulationTimer.value = setInterval(() => {
@@ -215,7 +218,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     if (!portfolioData.value) throw new Error('No portfolio data')
 
     const stocks = portfolioData.value.stocks
-    const totalValue = stocks.reduce((sum, stock) => sum + stock.quantity * stock.purchasePrice, 0)
+    const investedValue = portfolioData.value.invested || 0
 
     const configs = stocks.map((stock) => ({
       symbol: stock.ticker,
@@ -237,7 +240,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     const shares = stocks.map((stock) => stock.quantity)
 
     return {
-      portfolio_start: totalValue,
+      portfolio_start: investedValue,
       count: stocks.length,
       configs,
       shares,
@@ -267,6 +270,10 @@ export const usePortfolioStore = defineStore('portfolio', () => {
 
       const newData = await SimulationService.simulatePortfolio(request)
       simulationData.value = newData
+
+      if (newData.portfolio_final_value && portfolioSeries.value.length > 0) {
+        portfolioSeries.value.push(newData.portfolio_final_value)
+      }
     } catch (err) {
       console.error('Failed to update simulation step:', err)
     }
@@ -290,6 +297,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     userName,
     stats,
     simulationData,
+    portfolioSeries,
     isSimulationActive,
     currentStockPrices,
     currentStocksValue,

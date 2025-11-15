@@ -1,38 +1,35 @@
-import { ref } from 'vue';
-import { useAuthStore } from '@/stores/auth';
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 export function useGoogleLogin() {
-  const authStore = useAuthStore();
-  const errorMessage = ref('');
+  const authStore = useAuthStore()
+  const errorMessage = ref('')
 
   const handleGoogleLogin = async (onSuccess: () => void) => {
-    errorMessage.value = '';
-    
-    console.log('authStore methods:', Object.keys(authStore));
-    console.log('loginWithGoogle exists:', typeof authStore.loginWithGoogle);
-    
+    errorMessage.value = ''
+
     if (typeof authStore.loginWithGoogle !== 'function') {
-      errorMessage.value = 'Google login is not available. Please refresh the page.';
-      return;
+      errorMessage.value = 'Google login is not available. Please refresh the page.'
+      return
     }
-    
-    const result = await authStore.loginWithGoogle();
-    
+
+    const result = await authStore.loginWithGoogle()
+
     if (result.success) {
-      onSuccess();
+      onSuccess()
     } else {
-      errorMessage.value = result.error || 'Google login failed';
+      errorMessage.value = result.error || 'Google login failed'
     }
-  };
+  }
 
   const clearError = () => {
-    errorMessage.value = '';
-  };
+    errorMessage.value = ''
+  }
 
   return {
     errorMessage,
     handleGoogleLogin,
     clearError,
-    isLoading: () => authStore.loading
-  };
+    isLoading: () => authStore.loading,
+  }
 }

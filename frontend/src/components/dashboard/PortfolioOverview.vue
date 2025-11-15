@@ -53,7 +53,6 @@ const loadHoldings = async () => {
     }
   } catch (err) {
     error.value = 'Failed to load holdings'
-    console.error('Error loading holdings:', err)
   } finally {
     loading.value = false
   }
