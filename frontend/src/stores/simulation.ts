@@ -18,8 +18,8 @@ export const useSimulationStore = defineStore('simulation', () => {
   const isUpdating = ref(false)
   const timerId = ref<any>(null)
 
-  const chartWindowSize = ref(390)
-  const currentTotalSteps = ref(390)
+  const TOTAL_MARKET_MINUTES = 390
+  const STEPS_PER_UPDATE = 1
 
   const portfolioSeries = computed(() => simulationData.value?.portfolio_series || [])
   const portfolioStart = computed(() => simulationData.value?.portfolio_start || 0)
@@ -28,29 +28,25 @@ export const useSimulationStore = defineStore('simulation', () => {
   const components = computed(() => simulationData.value?.components || [])
 
   const chartData = computed(() => {
-    if (!simulationData.value || simulationData.value.portfolio_series.length === 0) {
-      return {
-        labels: [],
-        datasets: [],
-      }
-    }
-
-    const startMinute = currentTotalSteps.value - chartWindowSize.value
-
     const baseTime = new Date()
     baseTime.setHours(9, 30, 0, 0)
 
-    const windowStartTime = new Date(baseTime.getTime() + startMinute * 60000)
-
-    const labels = simulationData.value.portfolio_series.map((_, index) => {
-      const currentTime = new Date(windowStartTime.getTime() + index * 60000)
+    const labels = Array.from({ length: TOTAL_MARKET_MINUTES }, (_, index) => {
+      const currentTime = new Date(baseTime.getTime() + index * 60000)
       const minutes = currentTime.getMinutes()
 
       if (minutes === 0 || minutes === 30) {
         return formatTime(currentTime)
       }
-
       return ''
+    })
+
+    const dataLength = simulationData.value?.portfolio_series.length || 0
+    const chartDataArray = Array.from({ length: TOTAL_MARKET_MINUTES }, (_, index) => {
+      if (index < dataLength) {
+        return simulationData.value?.portfolio_series[index] ?? null
+      }
+      return null
     })
 
     return {
@@ -59,12 +55,13 @@ export const useSimulationStore = defineStore('simulation', () => {
         {
           label: 'Portfolio Value',
           borderColor: '#FFD501',
-          data: simulationData.value.portfolio_series,
+          data: chartDataArray,
           fill: false,
           tension: 0.4,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointBackgroundColor: '#42A5F5',
+          spanGaps: false,
         },
       ],
     }
@@ -87,11 +84,8 @@ export const useSimulationStore = defineStore('simulation', () => {
         if (config.seed === null) {
           config.seed = Math.floor(Math.random() * 1000000)
         }
+        config.n_steps = STEPS_PER_UPDATE
       })
-
-      const steps = request.configs[0]?.n_steps || 390
-      chartWindowSize.value = steps
-      currentTotalSteps.value = steps
 
       currentRequest.value = request
       const data = await SimulationService.simulatePortfolio(request)
@@ -114,11 +108,8 @@ export const useSimulationStore = defineStore('simulation', () => {
         if (config.seed === null) {
           config.seed = Math.floor(Math.random() * 1000000)
         }
+        config.n_steps = STEPS_PER_UPDATE
       })
-
-      const steps = request.configs[0]?.n_steps || 390
-      chartWindowSize.value = steps
-      currentTotalSteps.value = steps
 
       currentRequest.value = request
       const data = await SimulationService.simulatePortfolio(request)
@@ -136,50 +127,58 @@ export const useSimulationStore = defineStore('simulation', () => {
       return
     }
 
+    const currentDataLength = simulationData.value.portfolio_series.length
+
+    if (currentDataLength >= TOTAL_MARKET_MINUTES) {
+      console.log('Market hours complete, stopping updates')
+      stopRealtimeUpdates()
+      return
+    }
+
     isUpdating.value = true
     error.value = null
 
     try {
-      const newTotalSteps = currentTotalSteps.value + 5
+      const newTotalSteps = currentDataLength + STEPS_PER_UPDATE
 
-      const newConfigs = currentRequest.value.configs.map((config) => {
+      const newConfigs = currentRequest.value.configs.map((config, index) => {
+        const lastPrice = simulationData.value?.components[index]?.final_price || config.price
         return {
           ...config,
           n_steps: newTotalSteps,
-          useStartP0: false,
-          startP0: config.price,
+          useStartP0: true,
+          startP0: lastPrice,
           seed: config.seed,
         }
       })
 
       const nextRequest: SimulationRequest = {
         ...currentRequest.value,
-        portfolio_start: currentRequest.value.portfolio_start,
+        portfolio_start:
+          simulationData.value.portfolio_series[0] || simulationData.value.portfolio_start,
         configs: newConfigs,
       }
 
       const newData = await SimulationService.simulatePortfolio(nextRequest)
 
       if (simulationData.value) {
-        const newSeries = newData.portfolio_series.slice(-chartWindowSize.value)
-        simulationData.value.portfolio_series = newSeries
+        const newPoints = newData.portfolio_series.slice(-STEPS_PER_UPDATE)
+        simulationData.value.portfolio_series.push(...newPoints)
 
         simulationData.value.components = simulationData.value.components.map((comp, index) => {
-          const newPrices = newData.components[index]?.prices.slice(-chartWindowSize.value) || []
+          const newPrices = newData.components[index]?.prices.slice(-STEPS_PER_UPDATE) || []
           return {
             ...comp,
-            prices: newPrices,
+            prices: [...comp.prices, ...newPrices],
             final_price: newData.components[index]?.final_price || comp.final_price,
             change_rate: newData.components[index]?.change_rate || comp.change_rate,
           }
         })
 
         simulationData.value.portfolio_final_value = newData.portfolio_final_value
-        simulationData.value.portfolio_start = newSeries[0] ?? 0
         simulationData.value.portfolio_change_rate =
-          simulationData.value.portfolio_final_value / simulationData.value.portfolio_start - 1
-
-        currentTotalSteps.value = newTotalSteps
+          (simulationData.value.portfolio_final_value - simulationData.value.portfolio_start) /
+          simulationData.value.portfolio_start
       }
     } catch (err) {
       console.error('Error fetching next simulation steps:', err)
@@ -201,7 +200,7 @@ export const useSimulationStore = defineStore('simulation', () => {
 
     timerId.value = window.setInterval(async () => {
       await _fetchNextSteps()
-    }, 5000)
+    }, 1000)
   }
 
   const stopRealtimeUpdates = () => {
