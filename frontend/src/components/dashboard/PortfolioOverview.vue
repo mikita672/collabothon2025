@@ -43,11 +43,11 @@ const selectedHolding = ref<Holding | null>(null)
 const loadHoldings = async () => {
   loading.value = true
   error.value = null
-  
+
   try {
     const stocks = portfolioStore.stocks
     if (stocks && stocks.length > 0) {
-      holdings.value = await PortfolioService.getHoldings(stocks)
+      holdings.value = await PortfolioService.getHoldings(stocks, portfolioStore.currentStockPrices)
     } else {
       holdings.value = []
     }
@@ -64,11 +64,13 @@ const handleHoldingClick = (holding: Holding) => {
   isDialogOpen.value = true
 }
 
-// Load holdings when portfolio stocks change
 watch(() => portfolioStore.stocks, loadHoldings, { deep: true })
+watch(() => portfolioStore.simulationData, loadHoldings, { deep: true })
 
-// Initial load
-onMounted(() => {
-  loadHoldings()
+onMounted(async () => {
+  await loadHoldings()
 })
+
+import { onUnmounted } from 'vue'
+onUnmounted(() => {})
 </script>

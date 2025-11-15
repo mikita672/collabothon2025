@@ -1,54 +1,47 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { usePortfolioStore } from '@/stores/portfolio'
 import { useAuthStore } from '@/stores/auth'
-import { PortfolioService } from '@/services/portfolio'
-import type { PortfolioStats, UserPortfolioData } from '@/types/portfolio'
 
 export function usePortfolioData() {
+  const portfolioStore = usePortfolioStore()
   const authStore = useAuthStore()
-  const isLoading = ref(true)
-  const error = ref<string | null>(null)
-  const portfolioData = ref<UserPortfolioData | null>(null)
 
-  const portfolioStats = ref<PortfolioStats>({
-    currentBalance: 0,
-    totalInvested: 0,
-    currentValue: 0,
-    totalGrowth: 0,
-    growthPercentage: 0,
-  })
+  const portfolioData = computed(() => portfolioStore.portfolioData)
+  const portfolioStats = computed(
+    () =>
+      portfolioStore.stats || {
+        currentBalance: 0,
+        totalInvested: 0,
+        currentValue: 0,
+        totalGrowth: 0,
+        growthPercentage: 0,
+      },
+  )
 
-  let unsubscribe: (() => void) | null = null
+  const isLoading = computed(() => portfolioStore.loading)
+  const error = computed(() => portfolioStore.error)
 
   const fetchPortfolioData = async () => {
     if (!authStore.userId) {
-      error.value = 'User not authenticated'
-      isLoading.value = false
       return
     }
 
     try {
-      unsubscribe = PortfolioService.subscribeToPortfolioData(authStore.userId, (userData) => {
-        if (userData) {
-          portfolioData.value = userData
-          authStore.setUserName(userData.name)
-          portfolioStats.value = PortfolioService.calculatePortfolioStats(userData)
-          error.value = null
-        } else {
-          error.value = 'No portfolio data found'
+      portfolioStore.subscribeToPortfolio()
+
+      setTimeout(() => {
+        if (portfolioStore.stocks.length > 0) {
+          portfolioStore.startSimulation()
         }
-        isLoading.value = false
-      })
+      }, 1000)
     } catch (err) {
       console.error('Error fetching portfolio data:', err)
-      error.value = 'Failed to load portfolio data'
-      isLoading.value = false
     }
   }
 
   const cleanup = () => {
-    if (unsubscribe) {
-      unsubscribe()
-    }
+    portfolioStore.unsubscribeFromPortfolio()
+    portfolioStore.stopSimulation()
   }
 
   onMounted(() => {

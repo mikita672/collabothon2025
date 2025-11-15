@@ -1,8 +1,8 @@
 export interface Stock {
   ticker: string
   quantity: number
-  purchasePrice: number // Note: Firebase uses 'purchacePrice' (typo), mapping required
-  purchaseDate: string // Note: Firebase uses 'purchaceDate' (typo), mapping required
+  purchasePrice: number
+  purchaseDate: string
   currentPrice?: number
 }
 
@@ -32,7 +32,6 @@ export interface UserPortfolioData {
   stocks: Stock[]
 }
 
-// Firebase document structure (with typos in field names)
 export interface FirebaseUserData {
   balance: number
   invested: number
@@ -41,8 +40,8 @@ export interface FirebaseUserData {
   stocks: Array<{
     ticker: string
     quantity: number
-    purchacePrice: number // typo in Firebase
-    purchaceDate: string // typo in Firebase
+    purchacePrice: number
+    purchaceDate: string
   }>
 }
 
