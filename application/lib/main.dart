@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -51,6 +52,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+final currentTab = ValueNotifier<int>(0);
 
 class NavigationView extends StatefulWidget {
   const NavigationView({super.key});
@@ -97,6 +100,7 @@ class _NavigationViewState extends State<NavigationView> {
           onTap: (int index) {
             setState(() {
               _selectedIndex = index;
+              currentTab.value = index;              
             });
           },
 
