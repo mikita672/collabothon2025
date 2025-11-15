@@ -103,3 +103,34 @@ export async function fetchLatestStockValue(ticker: string): Promise<number> {
   const data = await response.json();
   return data.latest;
 }
+
+// Generate demo news for presentation
+export async function fetchDemoNews(): Promise<NewsItem[]> {
+  const demoNews: NewsItem[] = [];
+  
+  // Fetch 6 news items with different variants
+  const variants = [0, 1, 2, 0, 1, 2]; // good, bad, very bad, repeat
+  
+  for (const variant of variants) {
+    const response = await fetch(`${API_BASE_URL}/api/admin/test-news?variant=${variant}`);
+    
+    if (!response.ok) continue;
+    
+    const item = await response.json();
+    
+    demoNews.push({
+      id: item.id,
+      title: item.title,
+      ticker: item.ticker,
+      company: item.company,
+      timestamp: item.timestamp,
+      sourceUrl: item.sourceUrl,
+      sentiment: determineSentiment(item.priceImpact),
+      priceImpact: item.priceImpact,
+      summary: item.summary,
+      educationalNote: item.educationalNote,
+    });
+  }
+  
+  return demoNews;
+}

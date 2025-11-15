@@ -8,7 +8,7 @@ import { useNewsScheduler } from '@/composables/useNewsScheduler'
 import { useNewsActions } from '@/composables/useNewsActions'
 import { computed } from 'vue'
 
-const { newsItems, stockData, isLoading, error, loadStockData, loadNews } = useNewsData()
+const { newsItems, stockData, isLoading, error, loadStockData, loadNews, loadDemoNews } = useNewsData()
 const { selectedNews, selectNews, clearSelection } = useNewsSelection()
 
 // Manual refresh only - automatic scheduling disabled to save API quota
@@ -46,6 +46,11 @@ const nextUpdateFormatted = computed(() => {
 const handleRefresh = async () => {
   await triggerFetch()
 }
+
+// Load demo news for presentation
+const handleDemoNews = async () => {
+  await loadDemoNews()
+}
 </script>
 
 <template>
@@ -57,19 +62,40 @@ const handleRefresh = async () => {
               <h1>News Feed</h1>
               <h3 class="font-weight-light">Latest news affecting your portfolio</h3>
             </div>
-            <div class="d-flex flex-column align-end" style="gap: 4px;">
-              <v-btn 
-                icon="mdi-refresh" 
-                size="small" 
-                variant="outlined"
-                :loading="isLoading"
-                @click="handleRefresh"
-              ></v-btn>
-              <div class="text-caption text-grey">
-                Last: {{ lastUpdateFormatted }}
+            <div class="d-flex align-center" style="gap: 12px;">
+              <!-- Action Buttons Group -->
+              <div class="d-flex align-center" style="gap: 8px;">
+                <v-btn 
+                  color="primary"
+                  variant="tonal"
+                  size="small"
+                  :loading="isLoading"
+                  @click="handleDemoNews"
+                  prepend-icon="mdi-presentation"
+                >
+                  Demo
+                </v-btn>
+                
+                <v-btn 
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  :loading="isLoading"
+                  @click="handleRefresh"
+                  prepend-icon="mdi-refresh"
+                >
+                  Refresh
+                </v-btn>
               </div>
-              <div class="text-caption text-grey">
-                Next: {{ nextUpdateFormatted }}
+              
+              <!-- Update Times -->
+              <div class="d-flex flex-column" style="gap: 2px;">
+                <div class="text-caption text-grey">
+                  Last: {{ lastUpdateFormatted }}
+                </div>
+                <div class="text-caption text-grey">
+                  Next: {{ nextUpdateFormatted }}
+                </div>
               </div>
             </div>
           </div>

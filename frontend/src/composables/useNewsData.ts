@@ -1,6 +1,6 @@
 import { ref, onMounted } from 'vue';
 import type { NewsItem, StockDataPoint } from '@/types/news';
-import { fetchNews, fetchStockData } from '@/services/api';
+import { fetchNews, fetchStockData, fetchDemoNews } from '@/services/api';
 
 export function useNewsData() {
   const newsItems = ref<NewsItem[]>([]);
@@ -13,7 +13,7 @@ export function useNewsData() {
   // Load news from API
   const loadNews = async (
     tickers: string[] = defaultTickers,
-    days: number = 15,
+    days: number = 30,
     maxPerTicker: number = 15,
     useModel: number = 5
   ) => {
@@ -45,6 +45,22 @@ export function useNewsData() {
   // Refresh news data
   const refresh = () => loadNews();
 
+  // Load demo news for presentation
+  const loadDemoNews = async () => {
+    isLoading.value = true;
+    error.value = null;
+    
+    try {
+      const demoItems = await fetchDemoNews();
+      newsItems.value = demoItems;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to load demo news';
+      console.error('Error loading demo news:', err);
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   // Auto-load on mount
   onMounted(() => loadNews());
 
@@ -56,5 +72,6 @@ export function useNewsData() {
     loadNews,
     loadStockData,
     refresh,
+    loadDemoNews,
   };
 }
