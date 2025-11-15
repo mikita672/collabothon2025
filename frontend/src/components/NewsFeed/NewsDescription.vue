@@ -119,10 +119,10 @@ onUnmounted(() => {
                 <v-icon color="white" size="18">mdi-school</v-icon>
               </div>
               <div class="flex-grow-1">
-                <h3 class="text-body-1 font-weight-bold mb-1 education-title" style="line-height: 1.5; font-family: Afacad; color: #002e3c">
+                <h3 class="text-body-1 font-weight-bold mb-1" style="line-height: 1.5; font-family: Afacad; color: #002e3c">
                   Why This Matters
                 </h3>
-                <p class="text-body-2 education-text" style="line-height: 1.4;">
+                <p class="text-body-2" style="line-height: 1.4;">
                   {{ news.educationalNote }}
                 </p>
               </div>
@@ -215,13 +215,6 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.education-title {
-  color: #1e3a8a;
-}
-
-.education-text {
-  color: #1e40af;
-}
 
 .chart-container {
   position: relative;

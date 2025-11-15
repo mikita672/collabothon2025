@@ -9,11 +9,11 @@ export const APP_CONSTANTS = {
   },
   SESSION: {
     PREFIX: 'session_',
-    TIMEOUT: 300000, // 5 minutes in milliseconds
-    CHECK_INTERVAL: 1000 // 1 second
+    TIMEOUT: 300000, 
+    CHECK_INTERVAL: 1000 
   },
   LOGIN: {
     BASE_URL: 'https://ai-portfolio.app/auth',
-    QR_CHECK_PROBABILITY: 0.95 // 5% chance to auto-login for demo
+    QR_CHECK_PROBABILITY: 0.95 
   }
 } as const;

@@ -12,7 +12,7 @@
 
       <div class="d-flex align-center nav-section">
         <!-- User Profile Menu -->
-        <v-menu offset-y min-width="280" location="bottom end">
+        <v-menu location="bottom end">
           <template v-slot:activator="{ props }">
             <div v-bind="props" class="user-profile">
               <div class="user-avatar">

@@ -33,6 +33,7 @@ const handleClick = () => {
     class="news-card pa-4" 
     elevation="0"
     @click="handleClick"
+    style="font-family: Afacad; color: #002e3c"
   >
     <div class="d-flex align-start" style="gap: 12px;">
       <!-- Sentiment Icon -->
@@ -47,7 +48,7 @@ const handleClick = () => {
 
       <!-- Content -->
       <div class="flex-grow-1" style="min-width: 0;">
-        <div class="text-body-1 text-grey-darken-4 mb-2 text-h5 " style="font-family: Afacad; color: #002e3c">
+        <div class="text-body-1 text-grey-darken-4 mb-2 text-h5 ">
           {{ news.title }}
         </div>
 
@@ -56,7 +57,7 @@ const handleClick = () => {
           <v-chip 
             size="x-small" 
             variant="outlined"
-            class="badge-text text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c"
+            class="badge-text text-h5 font-weight-bold text-center"
           >
             {{ news.ticker }}
           </v-chip>
@@ -65,7 +66,7 @@ const handleClick = () => {
           <v-chip 
             size="x-small"
             :class="sentimentBadgeClass"
-            class="badge-text text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c"
+            class="badge-text text-h5 font-weight-bold text-center"
           >
             {{ news.sentiment }}
           </v-chip>
@@ -76,7 +77,7 @@ const handleClick = () => {
             size="x-small"
             variant="outlined"
             :class="priceImpactClass"
-            class="badge-text text-h5 font-weight-bold text-center" style="font-family: Afacad; color: #002e3c"
+            class="badge-text text-h5 font-weight-bold text-center"
           >
             {{ news.priceImpact > 0 ? '+' : '' }}{{ news.priceImpact }}%
           </v-chip>
