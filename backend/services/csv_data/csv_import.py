@@ -5,7 +5,6 @@ from typing import Dict, Optional
 def load_fund_data(ticker: str, data_dir: Optional[Path] = None) -> Dict[str, any]:
     t_clean = ticker.upper().strip()
     if data_dir is None:
-        # Папка data рядом с backend/
         data_dir = Path(__file__).parent.parent.parent / "data"
     file_path = data_dir / f"FundData_{t_clean}.csv"
     if not file_path.exists():
@@ -27,22 +26,18 @@ def load_fund_data(ticker: str, data_dir: Optional[Path] = None) -> Dict[str, an
     header = [h.strip() for h in rows[0]]
     data_rows = rows[1:]
 
-    # Определяем индекс колонки даты
     date_idx = None
     for i, name in enumerate(header):
         if "dates" in name.lower():
             date_idx = i
             break
     if date_idx is None:
-        # fallback на первую колонку
         date_idx = 0
 
-    # Определяем индекс первой числовой колонки (кроме даты)
     value_idx = None
     for i, name in enumerate(header):
         if i == date_idx:
             continue
-        # проверяем пару строк на числовое значение
         numeric_found = False
         for r in data_rows[:5]:
             if i < len(r):
@@ -56,7 +51,6 @@ def load_fund_data(ticker: str, data_dir: Optional[Path] = None) -> Dict[str, an
             value_idx = i
             break
     if value_idx is None:
-        # fallback на вторую колонку (если есть)
         value_idx = 1 if len(header) > 1 else date_idx
 
     data_map: Dict[str, float] = {}
@@ -67,18 +61,15 @@ def load_fund_data(ticker: str, data_dir: Optional[Path] = None) -> Dict[str, an
         val_raw = r[value_idx].strip()
         if not date_raw or not val_raw:
             continue
-        # нормализуем число
         try:
             val = float(val_raw.replace(",", ""))
         except Exception:
             continue
         data_map[date_raw] = val
 
-    # Сортируем по дате если возможно (ISO или YYYY-MM-DD)
     def _date_key(d: str):
         return d
     try:
-        # Попытка упорядочить если формат YYYY-MM-DD
         if all(len(k) >= 8 and k[4] == "-" for k in data_map.keys()):
             data_map = dict(sorted(data_map.items(), key=lambda kv: kv[0]))
     except Exception:
@@ -115,7 +106,6 @@ def load_latest_value(ticker: str, data_dir: Optional[Path] = None) -> Optional[
     header = [h.strip() for h in rows[0]]
     data_rows = rows[1:]
 
-    # Найдём индекс даты и индекс числовой колонки
     date_idx = None
     for i, name in enumerate(header):
         if "date" in name.lower():
@@ -128,7 +118,6 @@ def load_latest_value(ticker: str, data_dir: Optional[Path] = None) -> Optional[
     for i, name in enumerate(header):
         if i == date_idx:
             continue
-        # проверим несколько строк, что колонка числовая
         for r in data_rows[:5]:
             if i < len(r):
                 try:
@@ -153,6 +142,6 @@ def load_latest_value(ticker: str, data_dir: Optional[Path] = None) -> Optional[
             val = float(raw.replace(",", ""))
         except Exception:
             continue
-        last_value = val  # берем последнее валидное в файле
-
+        last_value = val
+        
     return last_value
