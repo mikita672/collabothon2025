@@ -9,7 +9,9 @@ class UserService extends ChangeNotifier {
   String? name;
   double balance = 0.0;
   double invested = 0.0;
-  int riskLevel = 0;
+  int? riskLevel; 
+  bool shouldSelectRiskLevel = false;
+
   Map<String, dynamic> stocks = {};
 
   Stream<DocumentSnapshot<Map<String, dynamic>>>? _userStream;
@@ -40,8 +42,10 @@ class UserService extends ChangeNotifier {
               ? double.parse(investedValue.toStringAsFixed(2))
               : 0.0;
 
-      riskLevel = data['risk_level'] as int? ?? 0;
+      riskLevel = data['risk_level']; 
       stocks = Map<String, dynamic>.from(data['stocks'] ?? {});
+
+      shouldSelectRiskLevel = riskLevel == null;
 
       notifyListeners();
     });
