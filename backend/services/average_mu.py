@@ -12,7 +12,7 @@ def simulate_price_series(
     mu_daily: float,
     sigma_daily: float,
     useStartP0: bool = False,
-    startP0 : float = 100,
+    startP0 : float = 100, # значение на старт торгов
     n_steps: int = 390,
     nu: int = 5,
     clip_limit: float = 0.05,
@@ -42,6 +42,5 @@ def simulate_price_series(
     return {
         "prices": price,
         "final_price": price[-1],
-        "change_rate": change_rate,
-        ""
+        "change_rate": change_rate
     }
