@@ -13,13 +13,10 @@
 
               <div class="d-flex align-center mb-3">
                 <v-icon size="18" color="grey-darken-1" class="mr-2">mdi-cellphone</v-icon>
-                <span class="text-caption text-grey-darken-1">
-                  Open your mobile app and scan
-                </span>
+                <span class="text-caption text-grey-darken-1"> Open your mobile app and scan </span>
               </div>
 
               <div class="w-100 button-container">
-
                 <v-alert
                   v-if="googleErrorMessage"
                   type="error"
@@ -52,7 +49,7 @@
                     class="mb-2"
                     @click:append-inner="showPassword = !showPassword"
                   />
-                <!-- Google Sign In -->
+                  <!-- Google Sign In -->
                   <v-btn
                     @click="handleEmailLoginClick"
                     :loading="authStore.loading"
@@ -90,7 +87,7 @@
                     size="small"
                     color="#002e3d"
                     block
-                    class="mb-2  text-none"
+                    class="mb-2 text-none"
                     height="40"
                   >
                     <v-icon size="18" class="mr-1">mdi-qrcode-scan</v-icon>
@@ -138,7 +135,9 @@
                   color="primary"
                   height="40"
                 >
-                  <v-icon size="18" class="mr-1">{{ showEmailLogin ? 'mdi-qrcode' : 'mdi-email' }}</v-icon>
+                  <v-icon size="18" class="mr-1">{{
+                    showEmailLogin ? 'mdi-qrcode' : 'mdi-email'
+                  }}</v-icon>
                   {{ showEmailLogin ? 'Use QR Code' : 'Use Email/Password' }}
                 </v-btn>
 
@@ -153,10 +152,22 @@
                   height="40"
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18" class="mr-2">
-                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
-                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-                    <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/>
-                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+                    <path
+                      fill="#4285F4"
+                      d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+                    />
                   </svg>
                   Continue with Google
                 </v-btn>
@@ -164,20 +175,19 @@
                 <div class="text-center mt-5 mb-4">
                   <p class="text-body-2 text-grey-darken-1">
                     Don't have an account?
-                    <a href="#" class="text-primary font-weight-medium" @click.prevent="emit('go-to-register')">
+                    <a
+                      href="#"
+                      class="text-primary font-weight-medium"
+                      @click.prevent="emit('go-to-register')"
+                    >
                       Sign Up
                     </a>
                   </p>
                 </div>
               </div>
 
-              <v-alert
-                type="info"
-                variant="tonal"
-                density="compact"
-                class="w-100"
-              >
-                <div class="text-caption" style="font-size: 1 rem; line-height: 1.3;">
+              <v-alert type="info" variant="tonal" density="compact" class="w-100">
+                <div class="text-caption" style="font-size: 1 rem; line-height: 1.3">
                   Session encrypted, expires in 5 min
                 </div>
               </v-alert>
@@ -190,74 +200,71 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import { useQRCode } from '@/composables/useQRCode';
-import { useEmailLogin } from '@/composables/useEmailLogin';
-import { useGoogleLogin } from '@/composables/useGoogleLogin';
+import { ref, watch } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useQRCode } from '@/composables/useQRCode'
+import { useEmailLogin } from '@/composables/useEmailLogin'
+import { useGoogleLogin } from '@/composables/useGoogleLogin'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 
 interface Props {
-  onLogin?: () => void;
+  onLogin?: () => void
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 const emit = defineEmits<{
-  login: [];
-  'go-to-register': [];
-}>();
+  login: []
+  'go-to-register': []
+}>()
 
-// Email/Password login
-const showEmailLogin = ref(false);
+const showEmailLogin = ref(false)
 const {
   loginEmail,
   loginPassword,
   showPassword,
   errorMessage,
   handleEmailLogin: performEmailLogin,
-  clearError
-} = useEmailLogin();
+  clearError,
+} = useEmailLogin()
 
-// Google login
 const {
   errorMessage: googleErrorMessage,
   handleGoogleLogin: performGoogleLogin,
-  clearError: clearGoogleError
-} = useGoogleLogin();
+  clearError: clearGoogleError,
+} = useGoogleLogin()
 
-// QR Code login
 const {
   canvasRef,
   isChecking,
   refreshQRCode,
   handleStartChecking,
   startCheckingAuth,
-  stopCheckingAuth
-} = useQRCode();
+  stopCheckingAuth,
+} = useQRCode()
 
 const handleLogin = () => {
   if (props.onLogin) {
-    props.onLogin();
+    props.onLogin()
   }
-  emit('login');
-};
+  emit('login')
+}
 
 const handleEmailLoginClick = async () => {
-  await performEmailLogin(handleLogin);
-};
+  await performEmailLogin(handleLogin)
+}
 
 const handleGoogleLoginClick = async () => {
-  await performGoogleLogin(handleLogin);
-};
+  await performGoogleLogin(handleLogin)
+}
 
 watch(isChecking, (newValue) => {
   if (newValue) {
-    startCheckingAuth(handleLogin);
+    startCheckingAuth(handleLogin)
   } else {
-    stopCheckingAuth();
+    stopCheckingAuth()
   }
-});
+})
 </script>
 
 <style scoped>
