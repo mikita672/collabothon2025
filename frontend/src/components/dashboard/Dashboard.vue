@@ -29,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { usePortfolioData } from '@/composables/usePortfolioData'
+import { usePortfolioSimulation } from '@/composables/usePortfolioSimulation'
 import CardsOverview from '@/components/Dashboard/StatCards/CardsOverview.vue'
 import PortfolioOverview from '@/components/Dashboard/PortfolioOverview.vue'
 import { Line } from 'vue-chartjs'
@@ -46,7 +47,16 @@ import {
   Filler,
 } from 'chart.js'
 
-const { portfolioStats, isLoading, error } = usePortfolioData()
+const { portfolioStats, isLoading: isPortfolioLoading, error: portfolioError } = usePortfolioData()
+
+const {
+  chartData: simulationChartData,
+  isLoading: isSimulationLoading,
+  error: simulationError,
+} = usePortfolioSimulation()
+
+const isLoading = computed(() => isPortfolioLoading.value || isSimulationLoading.value)
+const error = computed(() => portfolioError.value || simulationError.value)
 
 ChartJS.register(
   Title,
@@ -59,23 +69,29 @@ ChartJS.register(
   Filler,
 )
 
-const chartData = ref({
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'Stock Prices',
-      borderColor: '#FFD501',
-      data: [40, 39, 10, 40, 39, 80, 40],
-      fill: false,
-      tension: 0.4,
-      pointRadius: 0,
-      pointHoverRadius: 6,
-      pointBackgroundColor: '#42A5F5',
-    },
-  ],
+const chartData = computed(() => {
+  if (simulationChartData.value && simulationChartData.value.datasets.length > 0) {
+    return simulationChartData.value
+  }
+
+  return {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'Portfolio Value',
+        borderColor: '#FFD501',
+        data: [40, 39, 10, 40, 39, 80, 40],
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#42A5F5',
+      },
+    ],
+  }
 })
 
-const chartOptions = ref({
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -85,6 +101,11 @@ const chartOptions = ref({
     tooltip: {
       mode: 'index' as const,
       intersect: false,
+      callbacks: {
+        label: (context: any) => {
+          return `$${context.parsed.y.toFixed(2)}`
+        },
+      },
     },
   },
   elements: {
@@ -103,22 +124,27 @@ const chartOptions = ref({
       grid: {
         display: false,
       },
+      ticks: {
+        autoSkip: false,
+        maxRotation: 0,
+        minRotation: 0,
+      },
     },
     y: {
       title: {
         display: false,
       },
-      beginAtZero: true,
+      beginAtZero: false,
       grid: {
         color: '#f0f0f0',
         drawBorder: false,
       },
       ticks: {
-        callback: (value: any) => '$' + value,
+        callback: (value: any) => '$' + value.toFixed(2),
       },
     },
   },
-})
+}))
 </script>
 
 <style scoped>
