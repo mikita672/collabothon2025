@@ -1,3 +1,4 @@
+# BetterThenNever team's project
 # PowerPoint presentation:
 - Presentation_BetterThanNever_Novideo.pptx
 - video for presentation: https://youtu.be/e_svtYdGUvY
