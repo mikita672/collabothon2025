@@ -1,4 +1,4 @@
-# Kalovyj – Dev Setup and Run
+# OpenInvest – Dev Setup and Run
 
 Monorepo layout:
 - backend/ – FastAPI service
