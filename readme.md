@@ -1,3 +1,6 @@
+# PowerPoint presentation:
+- Presentation_BetterThanNever.pptx
+
 # OpenInvest – Dev Setup and Run
 
 Monorepo layout:
