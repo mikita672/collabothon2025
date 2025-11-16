@@ -19,6 +19,12 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   const simulationStartTime = ref<Date | null>(null)
   const simulationStepCount = ref(0)
   const maxSimulationSteps = ref(390)
+  const isBadNewsActive = ref(false)
+  const badNewsTimer = ref<any>(null)
+  const badNewsStartValue = ref(0)
+  const badNewsElapsedSeconds = ref(0)
+  const badNewsTotalDuration = 30 // 30 seconds total
+  const badNewsTotalDecline = 0.05 // 5% total decline
 
   const balance = computed(() => portfolioData.value?.balance || 0)
   const invested = computed(() => portfolioData.value?.invested || 0)
@@ -232,11 +238,15 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       ? simulationData.value.portfolio_final_value
       : portfolioData.value.balance + currentStocksVal
 
+    // Use negative parameters during bad news simulation for stronger downward effect
+    const muDaily = isBadNewsActive.value ? -0.008 : 0.0005
+    const sigmaDaily = isBadNewsActive.value ? 0.012 : 0.02
+
     const configs = stocks.map((stock) => ({
       symbol: stock.ticker,
       price: stock.purchasePrice,
-      mu_daily: 0.0005,
-      sigma_daily: 0.02,
+      mu_daily: muDaily,
+      sigma_daily: sigmaDaily,
       useStartP0: simulationData.value ? true : false,
       startP0: simulationData.value
         ? simulationData.value.components.find((c) => c.symbol === stock.ticker)?.final_price ||
@@ -274,7 +284,22 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       simulationData.value = newData
 
       if (newData.portfolio_final_value) {
-        portfolioSeries.value.push(newData.portfolio_final_value)
+        let finalValue = newData.portfolio_final_value
+
+        // Apply bad news decline effect directly to the value
+        if (isBadNewsActive.value && badNewsStartValue.value > 0) {
+          const progress = Math.min(badNewsElapsedSeconds.value / badNewsTotalDuration, 1)
+          const declineAmount = badNewsStartValue.value * badNewsTotalDecline * progress
+          finalValue = badNewsStartValue.value - declineAmount
+
+          // Update simulation data to reflect the modified value
+          simulationData.value = {
+            ...newData,
+            portfolio_final_value: finalValue,
+          }
+        }
+
+        portfolioSeries.value.push(finalValue)
       }
     } catch (err) {
       console.error('Failed to update simulation step:', err)
@@ -287,6 +312,42 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       portfolioData.value?.stocks.find((s) => s.ticker === ticker)?.purchasePrice ||
       0
     )
+  }
+
+  const simulateBadNews = async () => {
+    if (isBadNewsActive.value || !isSimulationActive.value) {
+      return
+    }
+
+    isBadNewsActive.value = true
+    badNewsStartValue.value = simulationData.value?.portfolio_final_value || 0
+    badNewsElapsedSeconds.value = 0
+
+    // Clear any existing bad news timer
+    if (badNewsTimer.value) {
+      clearInterval(badNewsTimer.value)
+    }
+
+    // Track elapsed time for gradual decline
+    badNewsTimer.value = setInterval(() => {
+      badNewsElapsedSeconds.value++
+
+      if (badNewsElapsedSeconds.value >= badNewsTotalDuration) {
+        clearInterval(badNewsTimer.value)
+        badNewsTimer.value = null
+        isBadNewsActive.value = false
+        badNewsElapsedSeconds.value = 0
+      }
+    }, 1000)
+  }
+
+  const stopBadNews = () => {
+    if (badNewsTimer.value) {
+      clearInterval(badNewsTimer.value)
+      badNewsTimer.value = null
+    }
+    isBadNewsActive.value = false
+    badNewsElapsedSeconds.value = 0
   }
 
   return {
@@ -316,5 +377,8 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     getStockCurrentPrice,
     simulationStepCount,
     maxSimulationSteps,
+    simulateBadNews,
+    stopBadNews,
+    isBadNewsActive,
   }
 })

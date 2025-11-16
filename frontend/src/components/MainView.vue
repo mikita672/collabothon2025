@@ -7,6 +7,9 @@ import { useNewsSelection } from '@/composables/useNewsSelection'
 import { useNewsScheduler } from '@/composables/useNewsScheduler'
 import { useNewsActions } from '@/composables/useNewsActions'
 import { computed } from 'vue'
+import { usePortfolioStore } from '@/stores/portfolio'
+
+const portfolioStore = usePortfolioStore()
 
 const { newsItems, stockData, isLoading, error, loadStockData, loadNews, loadDemoNews } =
   useNewsData()
@@ -42,6 +45,11 @@ const handleRefresh = async () => {
 
 const handleDemoNews = async () => {
   await loadDemoNews()
+
+  // Trigger bad news simulation if portfolio simulation is active
+  if (portfolioStore.isSimulationActive) {
+    await portfolioStore.simulateBadNews()
+  }
 }
 </script>
 
