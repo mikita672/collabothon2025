@@ -12,7 +12,6 @@ const { newsItems, stockData, isLoading, error, loadStockData, loadNews, loadDem
   useNewsData()
 const { selectedNews, selectNews, clearSelection } = useNewsSelection()
 
-// Manual refresh only - automatic scheduling disabled to save API quota
 const { lastUpdateTime, nextUpdateTime, triggerFetch } = useNewsScheduler(
   async () => {
     await loadNews()
@@ -20,7 +19,6 @@ const { lastUpdateTime, nextUpdateTime, triggerFetch } = useNewsScheduler(
   { intervalMinutes: 5, autoStart: false },
 )
 
-// Use news actions composable
 const { handleNewsClick, handleClose } = useNewsActions(
   selectedNews,
   selectNews,
@@ -28,7 +26,6 @@ const { handleNewsClick, handleClose } = useNewsActions(
   loadStockData,
 )
 
-// Format update times for display
 const lastUpdateFormatted = computed(() => {
   if (!lastUpdateTime.value) return 'Never'
   return lastUpdateTime.value.toLocaleTimeString()
@@ -39,12 +36,10 @@ const nextUpdateFormatted = computed(() => {
   return nextUpdateTime.value.toLocaleTimeString()
 })
 
-// Manual refresh
 const handleRefresh = async () => {
   await triggerFetch()
 }
 
-// Load demo news for presentation
 const handleDemoNews = async () => {
   await loadDemoNews()
 }
@@ -52,7 +47,6 @@ const handleDemoNews = async () => {
 
 <template>
   <div class="split-layout">
-    <!-- News Feed Section -->
     <div class="news-section pa-6" style="font-family: afacad; background-color: #f9f9fb">
       <div class="d-flex justify-space-between align-center mb-4">
         <div>
@@ -60,7 +54,6 @@ const handleDemoNews = async () => {
           <h3 class="font-weight-light">Latest news affecting your portfolio</h3>
         </div>
         <div class="d-flex align-center" style="gap: 12px">
-          <!-- Action Buttons Group -->
           <div class="d-flex align-center" style="gap: 8px">
             <v-btn
               color="primary"
@@ -85,7 +78,6 @@ const handleDemoNews = async () => {
             </v-btn>
           </div>
 
-          <!-- Update Times -->
           <div class="d-flex flex-column" style="gap: 2px">
             <div class="text-caption text-grey">Last: {{ lastUpdateFormatted }}</div>
             <div class="text-caption text-grey">Next: {{ nextUpdateFormatted }}</div>
@@ -93,25 +85,21 @@ const handleDemoNews = async () => {
         </div>
       </div>
 
-      <!-- Loading State -->
       <div v-if="isLoading" class="text-center py-8">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
         <p class="mt-2 text-grey">Loading news...</p>
       </div>
 
-      <!-- Error State -->
       <div v-else-if="error" class="text-center py-8">
         <v-icon color="error" size="48">mdi-alert-circle-outline</v-icon>
         <p class="mt-2 text-error">{{ error }}</p>
       </div>
 
-      <!-- News List -->
       <div v-else class="news-list">
         <NewsCard v-for="item in newsItems" :key="item.id" :news="item" @click="handleNewsClick" />
       </div>
     </div>
 
-    <!-- Dashboard -->
     <div class="dashboard-section">
       <Dashboard />
     </div>
