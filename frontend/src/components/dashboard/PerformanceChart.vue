@@ -75,7 +75,7 @@ const timeRange = ref('30') // Default to month
 // Emit timeRange changes to parent
 watch(timeRange, (newValue) => {
   emit('update:timeRange', newValue)
-})
+}, { immediate: true })
 
 const filteredData = computed(() => {
   // Sort data by date (oldest first)

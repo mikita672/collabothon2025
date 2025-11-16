@@ -13,7 +13,7 @@ export const APP_CONSTANTS = {
     CHECK_INTERVAL: 1000 
   },
   LOGIN: {
-    BASE_URL: 'https://ai-portfolio.app/auth',
+    BASE_URL: import.meta.env.VITE_QR_LOGIN_URL || 'http://localhost:5173/auth',
     QR_CHECK_PROBABILITY: 0.95 
   }
 } as const;

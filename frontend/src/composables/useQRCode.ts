@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { APP_CONSTANTS } from '@/config/constants';
 import { DatabaseService } from '@/services/database';
 import { useAuthStore } from '@/stores/auth';
@@ -17,6 +17,8 @@ export function useQRCode() {
   };
 
   const generateQRCode = async (data: string) => {
+    console.log('generateQRCode called with:', data);
+    console.log('canvasRef.value:', canvasRef.value);
     if (canvasRef.value) {
       try {
         await QRCode.toCanvas(canvasRef.value, data, {
@@ -27,13 +29,17 @@ export function useQRCode() {
             light: APP_CONSTANTS.QR_CODE.COLORS.LIGHT,
           },
         });
+        console.log('QR code generated successfully');
       } catch (error) {
         console.error('Error generating QR code:', error);
       }
+    } else {
+      console.error('Canvas ref is null, cannot generate QR code');
     }
   };
 
   const refreshQRCode = async () => {
+    console.log('refreshQRCode called');
     if (unsubscribeSession) {
       console.log('Stopping old listener');
       unsubscribeSession();
@@ -47,6 +53,7 @@ export function useQRCode() {
 
     const newSessionId = generateSessionId();
     sessionId.value = newSessionId;
+    console.log('Generated session ID:', newSessionId);
     
     try {
       await DatabaseService.writeSession(newSessionId);
@@ -56,7 +63,8 @@ export function useQRCode() {
     }
 
     const loginUrl = `${APP_CONSTANTS.LOGIN.BASE_URL}?session=${newSessionId}`;
-    generateQRCode(loginUrl);
+    console.log('Login URL for QR:', loginUrl);
+    await generateQRCode(loginUrl);
     
     isChecking.value = true;
   };
@@ -102,7 +110,10 @@ export function useQRCode() {
     }
   });
 
-  onMounted(() => {
+  onMounted(async () => {
+    console.log('useQRCode onMounted');
+    await nextTick();
+    console.log('After nextTick, canvasRef.value:', canvasRef.value);
     refreshQRCode();
   });
 
