@@ -3,13 +3,28 @@
     <div class="d-flex align-center justify-space-between" style="gap: 12px">
       <div class="d-flex align-center" style="gap: 12px">
         <v-avatar
+          :key="holding.ticker"
           size="48"
           rounded="circle"
           :color="iconColor"
           class="d-flex align-center justify-center"
         >
-          <v-img v-if="holding.ticker === 'NVDA'" :src="nvidiaIcon" width="28" height="28" />
-          <v-img v-else-if="holding.ticker === 'AMZN'" :src="amazonIcon" width="28" height="28" />
+          <v-img
+            v-if="holding.ticker === 'NVDA'"
+            :src="nvidiaIcon"
+            width="28"
+            height="28"
+            eager
+            :transition="false"
+          />
+          <v-img
+            v-else-if="holding.ticker === 'AMZN'"
+            :src="amazonIcon"
+            width="28"
+            height="28"
+            eager
+            :transition="false"
+          />
           <v-icon v-else size="28" color="white">{{ iconName }}</v-icon>
         </v-avatar>
 

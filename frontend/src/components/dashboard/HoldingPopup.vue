@@ -19,7 +19,9 @@
                 <div class="text-caption text-medium-emphasis" style="font-family: afacad">
                   Total Shares Bought
                 </div>
-                <div class="text-h6 font-weight-bold" style="font-family: afacad">1200</div>
+                <div class="text-h6 font-weight-bold" style="font-family: afacad">
+                  {{ totalSharesBought }}
+                </div>
               </v-sheet>
             </v-col>
             <v-col cols="12" sm="4">
@@ -27,7 +29,9 @@
                 <div class="text-caption text-medium-emphasis" style="font-family: afacad">
                   Total Shares Sold
                 </div>
-                <div class="text-h6 font-weight-bold" style="font-family: afacad">0</div>
+                <div class="text-h6 font-weight-bold" style="font-family: afacad">
+                  {{ totalSharesSold }}
+                </div>
               </v-sheet>
             </v-col>
             <v-col cols="12" sm="4">
@@ -35,7 +39,9 @@
                 <div class="text-caption text-medium-emphasis" style="font-family: afacad">
                   Net Position
                 </div>
-                <div class="text-h6 font-weight-bold" style="font-family: afacad">1200 shares</div>
+                <div class="text-h6 font-weight-bold" style="font-family: afacad">
+                  {{ netPosition }} shares
+                </div>
               </v-sheet>
             </v-col>
           </v-row>
@@ -43,7 +49,7 @@
             All Transactions
           </div>
 
-          <TransactionsHistory />
+          <TransactionsHistory :ticker="holding.ticker" />
         </v-col>
       </v-card-text>
 
@@ -56,7 +62,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch, ref } from 'vue'
 import TransactionsHistory from './TransactionsHistory.vue'
+import { usePortfolioStore } from '@/stores/portfolio'
+import { PortfolioService } from '@/services/portfolio'
+import type { Transaction } from '@/types/portfolio'
 
 interface Holding {
   id: string
@@ -67,7 +77,8 @@ interface Holding {
   currentPrice: number
   totalValue: number
 }
-defineProps<{
+
+const props = defineProps<{
   holding: Holding | null
 }>()
 
@@ -76,6 +87,35 @@ const model = defineModel<boolean>()
 const emit = defineEmits<{
   close: []
 }>()
+
+const portfolioStore = usePortfolioStore()
+const transactions = ref<Transaction[]>([])
+
+// Watch for holding changes and load transactions
+watch(
+  () => props.holding?.ticker,
+  (ticker) => {
+    if (ticker) {
+      const stocks = portfolioStore.stocks
+      if (stocks) {
+        transactions.value = PortfolioService.getTransactionsForTicker(stocks, ticker)
+      }
+    }
+  },
+  { immediate: true },
+)
+
+const totalSharesBought = computed(() => {
+  return transactions.value.filter((t) => t.type === 'buy').reduce((sum, t) => sum + t.quantity, 0)
+})
+
+const totalSharesSold = computed(() => {
+  return transactions.value.filter((t) => t.type === 'sell').reduce((sum, t) => sum + t.quantity, 0)
+})
+
+const netPosition = computed(() => {
+  return totalSharesBought.value - totalSharesSold.value
+})
 
 const formatShares = (n: number) => {
   return Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })
