@@ -15,7 +15,7 @@ export function useNewsData() {
     tickers: string[] = defaultTickers,
     days: number = 30,
     maxPerTicker: number = 100,
-    useModel: number = 5,
+    useModel: number = 7,
   ) => {
     isLoading.value = true
     error.value = null
