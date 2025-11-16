@@ -59,7 +59,7 @@ npm run dev
 
 ---
 
-## Mobile App (Flutter – EcoPoint)
+## Mobile App (Flutter)
 
 1) Install Flutter
 - Official guide: https://docs.flutter.dev/get-started/install
