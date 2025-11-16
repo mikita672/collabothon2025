@@ -270,6 +270,20 @@ export class PortfolioService {
     }))
   }
 
+  static getTransactionsForTicker(stocks: Stock[], ticker: string): Transaction[] {
+    return stocks
+      .filter((stock) => stock.ticker === ticker)
+      .map((stock, index) => ({
+        id: `${stock.ticker}-${stock.purchaseDate}-${index}`,
+        type: 'buy' as const,
+        ticker: stock.ticker,
+        quantity: stock.quantity,
+        price: stock.purchasePrice,
+        date: stock.purchaseDate,
+        totalValue: stock.quantity * stock.purchasePrice,
+      }))
+  }
+
   static async getHoldings(
     stocks: Stock[],
     currentPrices?: Map<string, number>,

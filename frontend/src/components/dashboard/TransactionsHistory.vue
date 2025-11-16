@@ -54,16 +54,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolio'
 import { PortfolioService } from '@/services/portfolio'
 import type { Transaction } from '@/types/portfolio'
 
+interface Props {
+  ticker?: string
+}
+
+const props = defineProps<Props>()
+
 const portfolioStore = usePortfolioStore()
 
-const transactions = ref<Transaction[]>([])
+const allTransactions = ref<Transaction[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const transactions = computed(() => {
+  if (props.ticker) {
+    return allTransactions.value.filter((t) => t.ticker === props.ticker)
+  }
+  return allTransactions.value
+})
 
 const loadTransactions = async () => {
   loading.value = true
@@ -72,12 +85,12 @@ const loadTransactions = async () => {
   try {
     const stocks = portfolioStore.stocks
     if (stocks && stocks.length > 0) {
-      const allTransactions = PortfolioService.getTransactions(stocks)
-      transactions.value = allTransactions.sort(
+      const fetchedTransactions = PortfolioService.getTransactions(stocks)
+      allTransactions.value = fetchedTransactions.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       )
     } else {
-      transactions.value = []
+      allTransactions.value = []
     }
   } catch (err) {
     error.value = 'Failed to load transactions'

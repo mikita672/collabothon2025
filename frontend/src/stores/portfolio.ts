@@ -24,7 +24,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   const badNewsStartValue = ref(0)
   const badNewsElapsedSeconds = ref(0)
   const badNewsTotalDuration = 30 // 30 seconds total
-  const badNewsTotalDecline = 0.05 // 5% total decline
+  const badNewsTotalDecline = 0.05 // 5% total GROWTH (negative = growth)
 
   const balance = computed(() => portfolioData.value?.balance || 0)
   const invested = computed(() => portfolioData.value?.invested || 0)
@@ -238,8 +238,8 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       ? simulationData.value.portfolio_final_value
       : portfolioData.value.balance + currentStocksVal
 
-    // Use negative parameters during bad news simulation for stronger downward effect
-    const muDaily = isBadNewsActive.value ? -0.008 : 0.0005
+    // Use positive parameters during bad news simulation for upward effect
+    const muDaily = isBadNewsActive.value ? -0.05 : 0.0005
     const sigmaDaily = isBadNewsActive.value ? 0.012 : 0.02
 
     const configs = stocks.map((stock) => ({
@@ -256,7 +256,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       nu: 5,
       clip_limit: 0.05,
       seed: null,
-      trend: 'standard' as const,
+      trend: 'up' as const,
     }))
 
     const shares = stocks.map((stock) => stock.quantity)
