@@ -13,7 +13,7 @@
 
     <v-row class="mt-4">
       <v-col
-        v-for="(stock, index) in props.stocks"
+        v-for="(stock, index) in activeStocks"
         :key="stock.ticker"
         cols="6"
       >
@@ -61,21 +61,31 @@ const props = defineProps<Props>()
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
 
+// Filter stocks with quantity > 0
+const activeStocks = computed(() => 
+  props.stocks.filter(s => s.quantity > 0)
+)
+
+// Calculate total value only for active stocks
+const activeTotalValue = computed(() => 
+  activeStocks.value.reduce((sum, stock) => sum + getStockValue(stock), 0)
+)
+
 const getStockValue = (stock: Stock) => {
   return stock.quantity * (stock.currentPrice || stock.purchasePrice)
 }
 
 const getPercentage = (stock: Stock) => {
   const value = getStockValue(stock)
-  return ((value / props.totalValue) * 100).toFixed(1)
+  return ((value / activeTotalValue.value) * 100).toFixed(1)
 }
 
 const chartData = computed(() => ({
-  labels: props.stocks.map((s) => s.ticker),
+  labels: activeStocks.value.map((s) => s.ticker),
   datasets: [
     {
-      data: props.stocks.map((s) => getStockValue(s)),
-      backgroundColor: COLORS.slice(0, props.stocks.length),
+      data: activeStocks.value.map((s) => getStockValue(s)),
+      backgroundColor: COLORS.slice(0, activeStocks.value.length),
       borderWidth: 2,
       borderColor: '#ffffff',
     },
@@ -92,13 +102,11 @@ const chartOptions = computed<ChartOptions<'pie'>>(() => ({
     tooltip: {
       callbacks: {
         label: (context) => {
-          const stock = props.stocks[context.dataIndex]
+          const stock = activeStocks.value[context.dataIndex]
           if (!stock) return ''
-          const value = getStockValue(stock)
           const percentage = getPercentage(stock)
           return [
             `${stock.ticker}`,
-            `$${value.toLocaleString()}`,
             `${percentage}% of portfolio`,
           ]
         },
