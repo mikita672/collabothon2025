@@ -290,7 +290,11 @@ export const usePortfolioStore = defineStore('portfolio', () => {
         if (isBadNewsActive.value && badNewsStartValue.value > 0) {
           const progress = Math.min(badNewsElapsedSeconds.value / badNewsTotalDuration, 1)
           const declineAmount = badNewsStartValue.value * badNewsTotalDecline * progress
-          finalValue = badNewsStartValue.value - declineAmount
+
+          // Add small random noise to make it look more natural (-0.3% to +0.3%)
+          const noise = (Math.random() - 0.5) * 0.006 * badNewsStartValue.value
+
+          finalValue = badNewsStartValue.value - declineAmount + noise
 
           // Update simulation data to reflect the modified value
           simulationData.value = {
