@@ -7,7 +7,7 @@ import type {
   Stock,
   Transaction,
   FirebaseUserData,
-  PerformanceData
+  PerformanceData,
 } from '@/types/portfolio'
 import type { Holding } from '@/types/holding'
 
@@ -299,9 +299,10 @@ export class PortfolioService {
       META: 'Meta Platforms Inc.',
     }
     return companyNames[ticker] || `${ticker} Corporation`
+  }
   static async updatePerformanceData(
     userId: string,
-    performanceData: PerformanceData
+    performanceData: PerformanceData,
   ): Promise<void> {
     try {
       const performanceDocRef = doc(db, 'performance', userId)
