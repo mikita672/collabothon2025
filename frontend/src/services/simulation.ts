@@ -14,13 +14,13 @@ export class SimulationService {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorText = await response.text()
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
       }
 
       const data = await response.json()
       return data as PortfolioSimulation
     } catch (error) {
-      console.error('Error simulating portfolio:', error)
       throw error
     }
   }

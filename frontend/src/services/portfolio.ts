@@ -1,14 +1,42 @@
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
-import type { UserPortfolioData, PortfolioStats, Stock, PerformanceData } from '@/types/portfolio'
+
+import type {
+  UserPortfolioData,
+  PortfolioStats,
+  Stock,
+  Transaction,
+  FirebaseUserData,
+  PerformanceData,
+} from '@/types/portfolio'
+import type { Holding } from '@/types/holding'
 
 export class PortfolioService {
+  private static mapFirebaseToUserData(firebaseData: any): UserPortfolioData {
+    const stocks: Stock[] = Array.isArray(firebaseData.stocks)
+      ? firebaseData.stocks.map((stock: any) => ({
+          ticker: stock.ticker,
+          quantity: stock.quantity,
+          purchasePrice: stock.purchacePrice || stock.purchasePrice || 0,
+          purchaseDate: stock.purchaceDate || stock.purchaseDate || new Date().toISOString(),
+        }))
+      : []
+
+    return {
+      balance: firebaseData.balance || 0,
+      invested: firebaseData.invested || 0,
+      name: firebaseData.name || 'User',
+      risk_level: firebaseData['risk-level'] || firebaseData.risk_level,
+      stocks,
+    }
+  }
+
   static async createUserPortfolio(userId: string, email: string, name?: string): Promise<void> {
     try {
       const userDocRef = doc(db, 'users', userId)
 
       const initialData: UserPortfolioData = {
-        balance: 10000, // Starting balance: $10,000
+        balance: 10000,
         invested: 0,
         name: name ?? 'User',
         risk_level: undefined,
@@ -16,9 +44,7 @@ export class PortfolioService {
       }
 
       await setDoc(userDocRef, initialData)
-      console.log('User portfolio created successfully')
     } catch (error) {
-      console.error('Error creating user portfolio:', error)
       throw error
     }
   }
@@ -30,13 +56,11 @@ export class PortfolioService {
 
       if (userDoc.exists()) {
         const data = userDoc.data()
-        
-        // Add stocks array if it doesn't exist
+
         if (!data.stocks || !Array.isArray(data.stocks)) {
           await updateDoc(userDocRef, {
-            stocks: []
+            stocks: [],
           })
-          console.log('Portfolio migrated: added stocks array')
         }
       }
     } catch (error) {
@@ -50,19 +74,12 @@ export class PortfolioService {
       const userDoc = await getDoc(userDocRef)
 
       if (userDoc.exists()) {
-        const data = userDoc.data() as UserPortfolioData
-        
-        // Ensure stocks is always an array
-        if (!data.stocks || !Array.isArray(data.stocks)) {
-          data.stocks = []
-        }
-        
-        return data
+        const firebaseData = userDoc.data()
+        return this.mapFirebaseToUserData(firebaseData)
       }
 
       return null
     } catch (error) {
-      console.error('Error fetching user portfolio data:', error)
       throw error
     }
   }
@@ -71,7 +88,7 @@ export class PortfolioService {
     userId: string,
     ticker: string,
     quantity: number,
-    price: number
+    price: number,
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const userDocRef = doc(db, 'users', userId)
@@ -82,12 +99,11 @@ export class PortfolioService {
       }
 
       const userData = userDoc.data() as UserPortfolioData
-      
-      // Ensure stocks is an array
+
       if (!userData.stocks || !Array.isArray(userData.stocks)) {
         userData.stocks = []
       }
-      
+
       const totalCost = quantity * price
 
       if (userData.balance < totalCost) {
@@ -97,20 +113,21 @@ export class PortfolioService {
       const existingStockIndex = userData.stocks.findIndex((s) => s.ticker === ticker)
 
       if (existingStockIndex !== -1) {
-        // Update existing stock
         const existingStock = userData.stocks[existingStockIndex]
-        const newTotalQuantity = existingStock.quantity + quantity
-        const newAveragePrice =
-          (existingStock.purchasePrice * existingStock.quantity + price * quantity) /
-          newTotalQuantity
+        if (existingStock) {
+          const newTotalQuantity = existingStock.quantity + quantity
+          const newAveragePrice =
+            (existingStock.purchasePrice * existingStock.quantity + price * quantity) /
+            newTotalQuantity
 
-        userData.stocks[existingStockIndex] = {
-          ...existingStock,
-          quantity: newTotalQuantity,
-          purchasePrice: newAveragePrice,
+          userData.stocks[existingStockIndex] = {
+            ticker: existingStock.ticker,
+            purchaseDate: existingStock.purchaseDate,
+            quantity: newTotalQuantity,
+            purchasePrice: newAveragePrice,
+          }
         }
       } else {
-        // Add new stock
         const newStock: Stock = {
           ticker,
           quantity,
@@ -140,7 +157,7 @@ export class PortfolioService {
     userId: string,
     ticker: string,
     quantity: number,
-    price: number
+    price: number,
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const userDocRef = doc(db, 'users', userId)
@@ -151,12 +168,11 @@ export class PortfolioService {
       }
 
       const userData = userDoc.data() as UserPortfolioData
-      
-      // Ensure stocks is an array
+
       if (!userData.stocks || !Array.isArray(userData.stocks)) {
         userData.stocks = []
       }
-      
+
       const stockIndex = userData.stocks.findIndex((s) => s.ticker === ticker)
 
       if (stockIndex === -1) {
@@ -164,6 +180,10 @@ export class PortfolioService {
       }
 
       const stock = userData.stocks[stockIndex]
+
+      if (!stock) {
+        return { success: false, error: 'Stock not found in portfolio' }
+      }
 
       if (stock.quantity < quantity) {
         return { success: false, error: 'Insufficient stock quantity' }
@@ -174,11 +194,12 @@ export class PortfolioService {
       const profit = totalRevenue - costBasis
 
       if (stock.quantity === quantity) {
-        // Remove stock completely
         userData.stocks.splice(stockIndex, 1)
       } else {
-        // Reduce quantity
-        userData.stocks[stockIndex].quantity -= quantity
+        const stockToUpdate = userData.stocks[stockIndex]
+        if (stockToUpdate) {
+          stockToUpdate.quantity -= quantity
+        }
       }
 
       userData.balance += totalRevenue
@@ -223,14 +244,9 @@ export class PortfolioService {
       userDocRef,
       (docSnapshot) => {
         if (docSnapshot.exists()) {
-          const data = docSnapshot.data() as UserPortfolioData
-          
-          // Ensure stocks is always an array
-          if (!data.stocks || !Array.isArray(data.stocks)) {
-            data.stocks = []
-          }
-          
-          callback(data)
+          const firebaseData = docSnapshot.data()
+          const mappedData = this.mapFirebaseToUserData(firebaseData)
+          callback(mappedData)
         } else {
           callback(null)
         }
@@ -242,9 +258,51 @@ export class PortfolioService {
     )
   }
 
+  static getTransactions(stocks: Stock[]): Transaction[] {
+    return stocks.map((stock, index) => ({
+      id: `${stock.ticker}-${stock.purchaseDate}-${index}`,
+      type: 'buy' as const,
+      ticker: stock.ticker,
+      quantity: stock.quantity,
+      price: stock.purchasePrice,
+      date: stock.purchaseDate,
+      totalValue: stock.quantity * stock.purchasePrice,
+    }))
+  }
+
+  static async getHoldings(
+    stocks: Stock[],
+    currentPrices?: Map<string, number>,
+  ): Promise<Holding[]> {
+    return stocks.map((stock, index) => {
+      const currentPrice = currentPrices?.get(stock.ticker) || stock.purchasePrice
+      return {
+        id: `${stock.ticker}-${index}`,
+        name: this.getCompanyName(stock.ticker),
+        ticker: stock.ticker,
+        shares: stock.quantity,
+        avgPrice: stock.purchasePrice,
+        currentPrice,
+        totalValue: stock.quantity * currentPrice,
+      }
+    })
+  }
+
+  private static getCompanyName(ticker: string): string {
+    const companyNames: Record<string, string> = {
+      NVDA: 'NVIDIA Corporation',
+      MSFT: 'Microsoft Corporation',
+      AAPL: 'Apple Inc.',
+      AMZN: 'Amazon.com Inc.',
+      GOOGL: 'Alphabet Inc.',
+      TSLA: 'Tesla Inc.',
+      META: 'Meta Platforms Inc.',
+    }
+    return companyNames[ticker] || `${ticker} Corporation`
+  }
   static async updatePerformanceData(
     userId: string,
-    performanceData: PerformanceData
+    performanceData: PerformanceData,
   ): Promise<void> {
     try {
       const performanceDocRef = doc(db, 'performance', userId)

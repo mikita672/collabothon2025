@@ -91,7 +91,6 @@ export const useSimulationStore = defineStore('simulation', () => {
       const data = await SimulationService.simulatePortfolio(request)
       simulationData.value = data
     } catch (err) {
-      console.error('Error fetching simulation:', err)
       error.value = 'Failed to load portfolio simulation'
     } finally {
       loading.value = false
@@ -115,7 +114,6 @@ export const useSimulationStore = defineStore('simulation', () => {
       const data = await SimulationService.simulatePortfolio(request)
       simulationData.value = data
     } catch (err) {
-      console.error('Error updating simulation:', err)
       error.value = 'Failed to update portfolio simulation'
     } finally {
       loading.value = false
@@ -130,7 +128,6 @@ export const useSimulationStore = defineStore('simulation', () => {
     const currentDataLength = simulationData.value.portfolio_series.length
 
     if (currentDataLength >= TOTAL_MARKET_MINUTES) {
-      console.log('Market hours complete, stopping updates')
       stopRealtimeUpdates()
       return
     }
@@ -181,7 +178,6 @@ export const useSimulationStore = defineStore('simulation', () => {
           simulationData.value.portfolio_start
       }
     } catch (err) {
-      console.error('Error fetching next simulation steps:', err)
       error.value = 'Failed to update simulation'
       stopRealtimeUpdates()
     } finally {
@@ -194,7 +190,6 @@ export const useSimulationStore = defineStore('simulation', () => {
       return
     }
 
-    console.log('Starting real-time simulation updates...')
     isStreaming.value = true
     if (timerId.value) window.clearInterval(timerId.value)
 
@@ -208,7 +203,6 @@ export const useSimulationStore = defineStore('simulation', () => {
       return
     }
 
-    console.log('Stopping real-time simulation updates.')
     window.clearInterval(timerId.value)
     timerId.value = null
     isStreaming.value = false

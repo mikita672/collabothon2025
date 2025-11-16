@@ -6,6 +6,16 @@ export interface Stock {
   currentPrice?: number
 }
 
+export interface Transaction {
+  id: string
+  type: 'buy' | 'sell'
+  ticker: string
+  quantity: number
+  price: number
+  date: string
+  totalValue: number
+}
+
 export interface PortfolioStats {
   currentBalance: number
   totalInvested: number
@@ -20,6 +30,19 @@ export interface UserPortfolioData {
   name: string
   risk_level?: string
   stocks: Stock[]
+}
+
+export interface FirebaseUserData {
+  balance: number
+  invested: number
+  name: string
+  'risk-level'?: string
+  stocks: Array<{
+    ticker: string
+    quantity: number
+    purchacePrice: number
+    purchaceDate: string
+  }>
 }
 
 export interface TradeAction {

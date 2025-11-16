@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePortfolioData } from '@/composables/usePortfolioData'
-import { usePortfolioSimulation } from '@/composables/usePortfolioSimulation'
+import { usePortfolioStore } from '@/stores/portfolio'
 import CardsOverview from '@/components/Dashboard/StatCards/CardsOverview.vue'
 import PortfolioOverview from '@/components/Dashboard/PortfolioOverview.vue'
 import { Line } from 'vue-chartjs'
@@ -48,15 +48,58 @@ import {
 } from 'chart.js'
 
 const { portfolioStats, isLoading: isPortfolioLoading, error: portfolioError } = usePortfolioData()
+const portfolioStore = usePortfolioStore()
 
-const {
-  chartData: simulationChartData,
-  isLoading: isSimulationLoading,
-  error: simulationError,
-} = usePortfolioSimulation()
+const isLoading = computed(() => isPortfolioLoading.value)
+const error = computed(() => portfolioError.value)
 
-const isLoading = computed(() => isPortfolioLoading.value || isSimulationLoading.value)
-const error = computed(() => portfolioError.value || simulationError.value)
+function formatTime(date: Date): string {
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
+const simulationChartData = computed(() => {
+  if (!portfolioStore.portfolioSeries || portfolioStore.portfolioSeries.length === 0) return null
+
+  const TOTAL_MARKET_MINUTES = 390
+  const baseTime = new Date()
+  baseTime.setHours(9, 30, 0, 0)
+
+  const labels = Array.from({ length: TOTAL_MARKET_MINUTES }, (_, index) => {
+    const currentTime = new Date(baseTime.getTime() + index * 60000)
+    const minutes = currentTime.getMinutes()
+    if (minutes === 0 || minutes === 30) {
+      return formatTime(currentTime)
+    }
+    return ''
+  })
+
+  const dataLength = portfolioStore.portfolioSeries.length
+  const chartDataArray = Array.from({ length: TOTAL_MARKET_MINUTES }, (_, index) => {
+    if (index < dataLength) {
+      return portfolioStore.portfolioSeries[index] ?? null
+    }
+    return null
+  })
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Portfolio Value',
+        borderColor: '#FFD501',
+        data: chartDataArray,
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#42A5F5',
+        spanGaps: false,
+      },
+    ],
+  }
+})
 
 ChartJS.register(
   Title,
@@ -143,7 +186,8 @@ const chartOptions = computed(() => ({
         drawBorder: false,
       },
       ticks: {
-        callback: (value: any) => '$' + value.toFixed(2),
+        stepSize: 500,
+        callback: (value: any) => '$' + value.toFixed(0),
       },
     },
   },
