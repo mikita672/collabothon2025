@@ -14,7 +14,7 @@ export function useNewsData() {
   const loadNews = async (
     tickers: string[] = defaultTickers,
     days: number = 30,
-    maxPerTicker: number = 15,
+    maxPerTicker: number = 2,
     useModel: number = 5
   ) => {
     isLoading.value = true;
@@ -22,7 +22,8 @@ export function useNewsData() {
     
     try {
       const news = await fetchNews(tickers, days, maxPerTicker, useModel);
-      newsItems.value = news;
+      // Limit to exactly 7 news items
+      newsItems.value = news.slice(0, 7);
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load news';
       console.error('Error loading news:', err);
@@ -52,7 +53,8 @@ export function useNewsData() {
     
     try {
       const demoItems = await fetchDemoNews();
-      newsItems.value = demoItems;
+      // Limit to exactly 7 news items
+      newsItems.value = demoItems.slice(0, 7);
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load demo news';
       console.error('Error loading demo news:', err);
@@ -61,8 +63,8 @@ export function useNewsData() {
     }
   };
 
-  // Auto-load on mount
-  onMounted(() => loadNews());
+  // Auto-load demo news on mount
+  onMounted(() => loadDemoNews());
 
   return {
     newsItems,

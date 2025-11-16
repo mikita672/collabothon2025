@@ -74,7 +74,6 @@ NON_FINANCE_EXCLUDE = [
     "giveaway", "contest", "travel", "recipes", "league "
 ]
 
-# Позитивні фінансові маркери
 FINANCE_KEYWORDS = [
     "stock", "stocks", "share", "shares", "share price",
     "earnings", "results", "q1", "q2", "q3", "q4", "quarter",
@@ -96,7 +95,6 @@ FINANCE_KEYWORDS = [
     "rally", "selloff", "plunge", "surge", "soars", "slumps"
 ]
 
-# Патерни для грошей/відсотків: $123, 3.5%, 10 billion, 500m тощо
 MONEY_OR_PERCENT_PATTERN = re.compile(
     r"(\$[\d.,]+)|(\b\d+(\.\d+)?\s*(%|percent|percentage)\b)|(\b\d+(\.\d+)?\s*(billion|million|bn|m)\b)"
 )
@@ -109,25 +107,16 @@ def _chunks(items: List[str], size: int) -> Iterable[List[str]]:
         yield items[i:i+size]
 
 def _looks_financial(title: str, desc: str, content: str) -> bool:
-    """
-    Повертає True, якщо текст схожий на фінансову новину:
-    1) НЕ містить явно нефінансових ключових слів (NON_FINANCE_EXCLUDE)
-    2) МІСТИТЬ хоча б один фінансовий маркер (FINANCE_KEYWORDS або MONEY_OR_PERCENT_PATTERN)
-    """
     text = f"{title} {desc} {content}".lower()
 
-    # 1. Явне відсікання нефінансового контенту
     for bad in NON_FINANCE_EXCLUDE:
         if bad in text:
             return False
 
-    # 2. Позитивні фінансові ключові слова
     has_fin_keyword = any(fin_kw in text for fin_kw in FINANCE_KEYWORDS)
 
-    # 3. Патерни грошей/відсотків/великих сум
     has_money_pattern = bool(MONEY_OR_PERCENT_PATTERN.search(text))
 
-    # Новина вважається фінансовою, якщо є хоча б один позитивний маркер
     return bool(has_fin_keyword or has_money_pattern)
 
 def fetch_financial_news(
@@ -180,13 +169,11 @@ def fetch_financial_news(
             desc = art.get("description") or ""
             content = art.get("content") or ""
 
-            # ← тепер це реально відсікає нефінансові новини
             if not _looks_financial(title, desc, content):
                 continue
 
             combined = f"{title}. {desc} {content}"
 
-            # Определяем связанные тикеры по вхождению названий
             related = []
             low = combined.lower()
             for tk in norm_tickers:
@@ -195,7 +182,7 @@ def fetch_financial_news(
                     related.append(tk)
 
             if not related:
-                continue  # фильтруем нерелевантные
+                continue 
 
             raw_source = art.get("source", {}).get("name") or ""
 

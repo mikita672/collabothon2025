@@ -1,11 +1,13 @@
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
+
 import type {
   UserPortfolioData,
   PortfolioStats,
   Stock,
   Transaction,
   FirebaseUserData,
+  PerformanceData
 } from '@/types/portfolio'
 import type { Holding } from '@/types/holding'
 
@@ -297,5 +299,33 @@ export class PortfolioService {
       META: 'Meta Platforms Inc.',
     }
     return companyNames[ticker] || `${ticker} Corporation`
+  static async updatePerformanceData(
+    userId: string,
+    performanceData: PerformanceData
+  ): Promise<void> {
+    try {
+      const performanceDocRef = doc(db, 'performance', userId)
+      await setDoc(performanceDocRef, performanceData, { merge: true })
+      console.log('Performance data updated successfully')
+    } catch (error) {
+      console.error('Error updating performance data:', error)
+      throw error
+    }
+  }
+
+  static async getPerformanceData(userId: string): Promise<PerformanceData | null> {
+    try {
+      const performanceDocRef = doc(db, 'performance', userId)
+      const performanceDoc = await getDoc(performanceDocRef)
+
+      if (performanceDoc.exists()) {
+        return performanceDoc.data() as PerformanceData
+      }
+
+      return null
+    } catch (error) {
+      console.error('Error fetching performance data:', error)
+      throw error
+    }
   }
 }

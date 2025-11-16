@@ -76,7 +76,7 @@ export async function fetchNews(
 }
 
 // Fetch stock data for ticker
-export async function fetchStockData(ticker: string): Promise<StockDataPoint[]> {
+export async function fetchStockData(ticker: string, days: number = 365): Promise<StockDataPoint[]> {
   const response = await fetch(`${API_BASE_URL}/fund/${ticker}`);
   
   if (!response.ok) {
@@ -89,7 +89,7 @@ export async function fetchStockData(ticker: string): Promise<StockDataPoint[]> 
     .map(([date, price]) => ({ date, price }))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  return stockPoints.slice(-30); // Last 30 days
+  return stockPoints.slice(-days); // Last N days
 }
 
 // Fetch latest stock value
@@ -108,8 +108,8 @@ export async function fetchLatestStockValue(ticker: string): Promise<number> {
 export async function fetchDemoNews(): Promise<NewsItem[]> {
   const demoNews: NewsItem[] = [];
   
-  // Fetch 6 news items with different variants
-  const variants = [0, 1, 2, 0, 1, 2]; // good, bad, very bad, repeat
+  // Fetch 7 news items with different variants
+  const variants = [0, 1, 2, 0, 1, 2, 0]; // good, bad, very bad, repeat
   
   for (const variant of variants) {
     const response = await fetch(`${API_BASE_URL}/api/admin/test-news?variant=${variant}`);

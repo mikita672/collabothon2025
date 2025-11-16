@@ -8,6 +8,11 @@ frontend/package-lock.json
 .vscode
 /backend/services/__pycache__
 /backend/routers/__pycache__
-frontend/src/firebase.ts
 frontend/.env
 /backend/services/gemini_summarizer/firebase_collabothon_config.json
+
+# Python caches
+**/__pycache__/
+/**/__pycache__/
+*.pyc
+*.pyo

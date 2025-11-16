@@ -33,7 +33,6 @@ def simulate_price_series(
     elif trend == "down":
         mu_step -= trend_log_step
 
-    # draw all noises at once (heavy-tailed), clip extremes
     eps = rng.standard_t(df=nu, size=n_steps) * sigma_step
     eps = np.clip(eps, -clip_limit, clip_limit)
 
@@ -58,23 +57,6 @@ def simulate_portfolio(
     configs: List[Dict[str, Any]],
     shares: List[Union[int, float]],
 ) -> Dict[str, Any]:
-    """
-    configs: список словарей с параметрами для simulate_price_series:
-      {
-        "price": float (P0) ИЛИ "prices": [..] (возьмём среднее),
-        "mu_daily": float,
-        "sigma_daily": float,
-        "useStartP0": bool,
-        "startP0": float,
-        "n_steps": int,
-        "nu": int,
-        "clip_limit": float,
-        "seed": int|None,
-        "trend": "standard"|"up"|"down",
-        "symbol": "STRING" (опционально)
-      }
-    shares: количество купленных акций для каждого конфига.
-    """
     if len(configs) != len(shares):
         raise ValueError("configs length != shares length")
     if not configs:
